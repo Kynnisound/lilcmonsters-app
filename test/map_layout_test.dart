@@ -20,7 +20,7 @@ void main() {
     expect(DesignArt.placeSize(4), 200);
   });
 
-  test('carte tablette quand largeur / hauteur < 1,6, si elle existe', () {
+  test('carte tablette quand largeur / hauteur < 1,7, si elle existe', () {
     const tablet = MapLayout(
       image: 'assets/images/map/test_43.png',
       frame: Size(1024, 768),
@@ -32,8 +32,10 @@ void main() {
     expect(pick(1024, 768, null), same(DesignArt.phoneLayout));
     expect(pick(1024, 768), same(tablet));
     expect(pick(1366, 1024), same(tablet));
-    expect(pick(1279, 800), same(tablet));
-    expect(pick(1280, 800), same(DesignArt.phoneLayout));
+    expect(pick(1280, 800), same(tablet)); // 16:10
+    expect(pick(1359, 800), same(tablet)); // 1,699
+    expect(pick(1360, 800), same(DesignArt.phoneLayout)); // 1,7
+    expect(pick(1334, 750), same(DesignArt.phoneLayout)); // 16:9
     expect(pick(1280, 720), same(DesignArt.phoneLayout));
     expect(pick(800, 360), same(DesignArt.phoneLayout));
     // Carte livree par Margaux (manifest.json > map.layouts.tablet43).
@@ -93,9 +95,24 @@ void main() {
         );
         if (expected != null) expect(box.width, closeTo(expected, .01));
         expect(box.left, greaterThanOrEqualTo(0));
+        expect(box.top, greaterThanOrEqualTo(0));
         expect(box.right, lessThanOrEqualTo(screen.width));
         expect(box.bottom, lessThanOrEqualTo(screen.height));
       }
+      // HUD : ancre a l'ecran (coin haut droit), jamais rogne.
+      for (final k in ['mute-button', 'parents-entry']) {
+        final r = tester.getRect(find.byKey(Key(k)));
+        expect(r.left, greaterThanOrEqualTo(0), reason: k);
+        expect(r.top, greaterThanOrEqualTo(0), reason: k);
+        expect(r.right, lessThanOrEqualTo(screen.width), reason: k);
+        expect(r.bottom, lessThanOrEqualTo(screen.height), reason: k);
+      }
+      expect(
+        screen.width -
+            tester.getRect(find.byKey(const Key('parents-entry'))).right,
+        12,
+      );
+      expect(tester.getRect(find.byKey(const Key('mute-button'))).top, 12);
       // HUD : taille fixe, quel que soit l'ecran.
       expect(
         tester.getSize(find.byKey(const Key('mute-button'))).width,

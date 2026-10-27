@@ -27,9 +27,10 @@ abstract final class DesignArt {
   /// Couleur des bandes de lagon autour du cadre (bord de l'illustration).
   static const mapLagoon = Color(0xFF3FC1B0);
 
-  /// Bascule sur la carte tablette quand largeur / hauteur < 1,6 (README
-  /// de Margaux, v1.2), si elle existe ; sinon la carte telephone.
-  static const tabletMaxAspect = 1.6;
+  /// Bascule sur la carte tablette quand largeur / hauteur < 1,7 (valide
+  /// par Margaux le 27/10/2026, 16:10 compris), si elle existe ; sinon la
+  /// carte telephone.
+  static const tabletMaxAspect = 1.7;
   static MapLayout layoutFor(
     Size screen, {
     MapLayout? tablet = tablet43Layout,
