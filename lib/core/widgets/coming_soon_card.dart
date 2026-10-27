@@ -54,13 +54,16 @@ class _ComingSoonCardState extends State<ComingSoonCard>
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AnimatedBuilder(
-              animation: _c,
-              builder: (_, child) => Transform.translate(
-                offset: Offset(0, -6 * AppMotion.io.transform(_c.value)),
-                child: child,
+            // Se reduit sur les petits telephones plutot que de deborder.
+            Flexible(
+              child: AnimatedBuilder(
+                animation: _c,
+                builder: (_, child) => Transform.translate(
+                  offset: Offset(0, -6 * AppMotion.io.transform(_c.value)),
+                  child: child,
+                ),
+                child: Image.asset(widget.monster.asset, height: 96),
               ),
-              child: Image.asset(widget.monster.asset, height: 96),
             ),
             const SizedBox(width: 12),
             RotationTransition(
@@ -73,8 +76,12 @@ class _ComingSoonCardState extends State<ComingSoonCard>
             ),
             const SizedBox(width: 12),
             Flexible(
+              // Trois lignes au plus : la carte garde sa hauteur sur les
+              // petits telephones (texte complet dans le label semantique).
               child: Text(
                 widget.parentNote,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodyLarge
                     ?.copyWith(color: AppColors.inkSoft, fontSize: 15),
               ),

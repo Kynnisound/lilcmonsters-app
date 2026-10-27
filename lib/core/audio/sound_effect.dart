@@ -30,12 +30,13 @@ String resolveAudioAsset(String base, [AudioFormat? format]) {
 /// assets/audio/SOUNDS_MANIFEST.md), sauf les cinq notes des monstres,
 /// generees par tool/gen_sounds.py (aucun equivalent livre).
 enum SoundEffect {
-  // Notes pentatoniques des monstres (synthese maison).
-  noteDo('sounds/note_do.wav'),
-  noteRe('sounds/note_re.wav'),
-  noteMi('sounds/note_mi.wav'),
-  noteSol('sounds/note_sol.wav'),
-  noteLa('sounds/note_la.wav'),
+  // Notes pentatoniques des monstres (synthese maison, sources .wav dans
+  // assets/sounds/), a la meme sonie que les pads de la plage (BUG-007).
+  noteDo('audio_mix/notes/note_do'),
+  noteRe('audio_mix/notes/note_re'),
+  noteMi('audio_mix/notes/note_mi'),
+  noteSol('audio_mix/notes/note_sol'),
+  noteLa('audio_mix/notes/note_la'),
 
   // Interface.
   uiTap('audio/ui/ui_tap'),
@@ -43,12 +44,14 @@ enum SoundEffect {
   placeUnlocked('audio/ui/ui_place_unlocked'),
   placeLocked('audio/ui/ui_place_locked'),
 
-  // Plage.
-  beachWave('audio/beach/beach_wave_splash'),
-  beachSeagull('audio/beach/beach_seagull'),
-  beachShell('audio/beach/beach_shell'),
-  beachBubbles('audio/beach/beach_bubbles'),
-  beachSand('audio/beach/beach_sand'),
+  // Plage : copies de niveau des sons de Shada (meme sonie que les notes,
+  // -22 LUFS momentane max, crete <= -3 dBTP ; tool/normalize_pads.py,
+  // BUG-007).
+  beachWave('audio_mix/beach/beach_wave_splash'),
+  beachSeagull('audio_mix/beach/beach_seagull'),
+  beachShell('audio_mix/beach/beach_shell'),
+  beachBubbles('audio_mix/beach/beach_bubbles'),
+  beachSand('audio_mix/beach/beach_sand'),
 
   // Puzzle.
   piecePickup('audio/puzzle/puzzle_piece_pickup'),

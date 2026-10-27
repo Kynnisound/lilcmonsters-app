@@ -1,0 +1,22 @@
+# BUG-018 : icone de l'appli (visuels de travail de Margaux, validation de
+# David attendue). Sources : assets/launch/ (copie de design/assets/launch/,
+# non embarquee). Regenerer : dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  web:
+    generate: false        # icones web deja personnalisees
+  windows:
+    generate: false
+  macos:
+    generate: false
+  image_path: "assets/launch/ios/app_icon_1024.png"
+  remove_alpha_ios: true
+  background_color_ios: "#3FC1B0"
+  min_sdk_android: 24
+  adaptive_icon_background: "assets/launch/android/ic_launcher_background.png"
+  adaptive_icon_foreground: "assets/launch/android/ic_launcher_foreground.png"
+  # La marge est deja dans le 432 px (Pip dans le cercle de 66 dp).
+  adaptive_icon_foreground_inset: 0
+  # Icone thematique Android 13+.
+  adaptive_icon_monochrome: "assets/launch/android/ic_launcher_monochrome.png"

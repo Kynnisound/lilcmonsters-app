@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:seamonsters/core/config/app_config.dart';
-import 'package:seamonsters/core/parental/parental_gate.dart';
 import 'package:seamonsters/core/router/app_router.dart';
 import 'package:seamonsters/core/router/routes.dart';
 
@@ -10,7 +9,11 @@ import 'helpers.dart';
 
 void main() {
   for (final size in const [
+    Size(568, 320),
+    Size(640, 360),
+    Size(667, 375),
     Size(740, 360),
+    Size(932, 430),
     Size(1024, 768),
     Size(1366, 1024),
   ]) {
@@ -22,7 +25,8 @@ void main() {
           config: const AppConfig(premiumUnlocked: true, unlockAllIslets: true),
         );
         tester.view.physicalSize = size;
-        h.container.read(parentalSessionProvider.notifier).grant();
+        // L'espace parents s'affiche comme apres la porte.
+        h.access.openParentsSpace();
         final router = h.container.read(routerProvider);
         for (final route in [
           Routes.map,

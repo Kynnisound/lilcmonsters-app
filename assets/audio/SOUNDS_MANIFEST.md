@@ -39,3 +39,14 @@ Credit is optional, but we can add a line such as "Sounds: Kenney.nl, OpenGameAr
 - `beach_shell.ogg` is a stand-in (a light glass tap from Kenney), not a recording of a real shell.
 - Original source files and the build script (`build.py`) are kept on the build box at `/workspace/audio_src/` to allow re-cuts.
 - Kenney licence text (in every pack's License.txt): "License: (Creative Commons Zero, CC0) http://creativecommons.org/publicdomain/zero/1.0/ — This content is free to use in personal, educational and commercial projects."
+
+## Annexe appli (27/10/2026, BUG-007)
+
+Ajout côté appli, sans modifier les fichiers ci-dessus :
+
+| Son | Fichier | Origine | Niveau |
+|---|---|---|---|
+| 5 notes des monstres | assets/sounds/note_{do,re,mi,sol,la}.wav | synthèse maison, tool/gen_sounds.py, CC0 | RMS max 100 ms -18 dBFS, crête ≈ -10,5 dBFS |
+| 5 pads de la plage | assets/audio_mix/beach/*.ogg, *.m4a | copies de niveau des fichiers beach_* ci-dessus | RMS max 100 ms -18 dBFS (±1,6 dB), crête vraie ≤ -3 dBTP |
+
+Détail et commande de régénération : assets/audio_mix/README.md.

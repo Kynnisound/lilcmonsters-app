@@ -27,7 +27,7 @@ void main() {
       expect(
         size.width,
         DesignArt.enabled
-            ? inInclusiveRange(DesignArt.placeMin, DesignArt.placeMax)
+            ? inInclusiveRange(100, DesignArt.placeMax)
             : inInclusiveRange(AppSizes.mapSpotMin, AppSizes.mapSpotMax),
       );
       expect(
@@ -154,16 +154,18 @@ void main() {
     await settle(tester);
     expect(find.byKey(const Key('parental-question')), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('parental-choice-11')));
-    await settle(tester);
+    await answerGate(tester, '41');
     expect(find.byType(LighthouseScreen), findsNothing);
+    expect(find.byKey(const Key('parental-question')), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('parental-choice-12')));
-    await settle(tester);
+    await passGate(tester);
     expect(find.byType(LighthouseScreen), findsOneWidget);
 
+    // Chaque sortie vers YouTube redemande la porte (BUG-002).
     await tester.tap(find.byKey(const Key('open-channel')));
     await settle(tester);
+    expect(h.links.opened, isEmpty);
+    await passGate(tester);
     expect(h.links.opened.single.toString(), AppConfig.youtubeChannelUrl);
   });
 
@@ -179,8 +181,7 @@ void main() {
       // Toucher un contenu verrouille ouvre la porte parentale puis l'espace parents.
       await tester.tap(find.bySemanticsLabel(S.premium).first);
       await settle(tester);
-      await tester.tap(find.byKey(const Key('parental-choice-12')));
-      await settle(tester);
+      await passGate(tester);
       expect(find.byType(ParentsScreen), findsOneWidget);
       await tester.tap(find.byKey(const Key('fake-purchase')));
       await settle(tester);

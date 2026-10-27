@@ -24,10 +24,29 @@ class LighthouseScreen extends ConsumerStatefulWidget {
 }
 
 class _LighthouseScreenState extends ConsumerState<LighthouseScreen> {
-  late bool _granted = ref.read(parentalSessionProvider.notifier).isValid;
+  late final ParentalAccess _access = ref.read(parentalAccessProvider);
+
+  // Laissez-passer a usage unique donne par la porte de la carte (le
+  // routeur refuse l'ecran sans lui, BUG-013) ; par securite, s'il manque,
+  // la porte s'affiche ici.
+  late bool _granted =
+      _access.consumePass(ParentalPurpose.lighthouse) ||
+      _access.isOpen(ParentalPurpose.lighthouse);
+
+  @override
+  void initState() {
+    super.initState();
+    if (_granted) _access.open(ParentalPurpose.lighthouse);
+  }
+
+  @override
+  void dispose() {
+    _access.close(ParentalPurpose.lighthouse);
+    super.dispose();
+  }
 
   Future<void> _open(Uri uri) async {
-    // Revalide la session juste avant de quitter l'appli.
+    // Chaque sortie vers YouTube redemande la porte (BUG-002).
     if (!await requestParentalAccess(context, ref)) return;
     await ref.read(linkLauncherProvider).openExternal(uri);
   }
@@ -48,6 +67,7 @@ class _LighthouseScreenState extends ConsumerState<LighthouseScreen> {
                 child: ParentalGateView(
                   onResult: (ok) {
                     if (ok) {
+                      _access.open(ParentalPurpose.lighthouse);
                       setState(() => _granted = true);
                     } else {
                       context.go(Routes.map);

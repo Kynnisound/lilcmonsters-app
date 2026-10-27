@@ -23,7 +23,11 @@ class PlaceButton extends ConsumerStatefulWidget {
     required this.unlocked,
     required this.premiumOwned,
     required this.onOpen,
+    this.tapRatio = DesignArt.tapRatio,
   });
+
+  /// Diametre du cercle de tap / taille du lieu (mode illustre).
+  final double tapRatio;
 
   final IslandPlace place;
   final bool unlocked;
@@ -116,10 +120,10 @@ class _PlaceButtonState extends ConsumerState<PlaceButton> {
               ),
       ),
     );
-    // Lieux illustres : zone de tap circulaire (130/140 de la boite).
-    return DesignArt.enabled
-        ? CircleHitArea(ratio: DesignArt.tapRatio, child: button)
-        : button;
+    // Zone de tap circulaire (130/140 de la boite pour les lieux illustres,
+    // disque entier en repli), resserree par la carte pour garder 8 dp
+    // entre voisins (BUG-010).
+    return CircleHitArea(ratio: widget.tapRatio, child: button);
   }
 
   /// Lieu illustre (assets de travail de Margaux), sans pictogramme (les

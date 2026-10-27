@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Manifeste de confidentialite de l'appli Lil C Monsters (cible Runner).
+  - Aucun suivi (NSPrivacyTracking false, aucun domaine de suivi).
+  - Aucune donnee collectee : pas de compte, pas d'analytics, pas de
+    publicite, pas de crash reporting, rien ne quitte l'appareil.
+  - API a raison declaree : UserDefaults (shared_preferences, BUG-011),
+    raison CA92.1 : l'appli lit et ecrit ses propres reglages, accessibles
+    a elle seule. Seul l'etat de blocage de la porte parentale y est
+    enregistre (compteur d'erreurs, palier, heure de fin), sur l'appareil,
+    sans donnee personnelle ni envoi reseau.
+  Le moteur Flutter et les plugins (audioplayers_darwin, url_launcher_ios,
+  shared_preferences_foundation) fournissent aussi leur propre manifeste.
+  A mettre a jour si l'appli ajoute des dates de fichiers, l'espace disque
+  ou un SDK (Firebase, RevenueCat).
+-->
+<plist version="1.0">
+<dict>
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

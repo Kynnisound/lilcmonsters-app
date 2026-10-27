@@ -130,7 +130,8 @@ Reference points: Apple HIG minimum is 44 pt and Material is 48 dp, both for adu
 **Map places rules** (added 27 Oct 2026, v1.2)
 - **(a) No module pictograms on the map.** The drawn place plus its spoken label (the guide names it on tap) is the identifier: remove the small module icons at the bottom-left of places. Module icons are kept only inside the modules and in the HUD (back, home, sound and the like). The locked state keeps its plum padlock badge, and the "new" `sun` ring stays.
 - **(b) Places scale with the decor.** Place size = **140 dp × the map's scale factor** (the same factor used to fit the decor to the screen, `BoxFit.cover`), **clamped between 120 dp and 200 dp**; the tap area scales with it (circle, 130/140 of the place size). Positions come from `design/assets/manifest.json → map.layouts` (phone 812 × 375 dp, tablet 4:3 1024 × 768 dp) in map-relative units. **HUD buttons do not scale**: they stay at their fixed dp size (sound and home 72 dp, parental gate 44 dp) inside the layout's HUD-safe zone at the top right.
-- Places are at least 132 dp apart (centre to centre) in every layout.
+- Places are at least 132 dp apart (centre to centre) in the phone and tablet layouts.
+- **(c) Small phones.** On screens **360 dp tall or less** (568 × 320, 640 × 360) use the dedicated `phone_compact` layout (`map_island_morning_compact.png`, 640 × 360 dp frame) instead of shrinking the phone map. Places there are 120 dp × the map scale, **clamped to 100–200 dp** (100 dp is allowed on these screens only); the tap area is a circle of at least 96 dp, centres are at least 104 dp apart and tap areas never overlap. The **72 dp minimum touch target still holds**, and the HUD keeps its fixed sizes inside the top-right HUD-safe zone.
 
 **Parental-gate rule** (added 27 Oct 2026 after QA review)
 - Touch target at least **44 pt** (44 dp, `AppSizes.parentEntry`). The icon is a flat monochrome mauve-grey gear (`#5A536C`, at least 3:1 on lagoon and cream), thin outline, no gloss, no relief, no shadow, no people, and clearly distinct from the plum padlock in shape, colour and weight. Asset: `design/assets/icons/icon_parental_gate.png`.
@@ -177,6 +178,8 @@ Reference points: Apple HIG minimum is 44 pt and Material is 48 dp, both for adu
 | Lighthouse | brand YouTube | **the whole crew** | sunset glow | sunset `#FFC9A3`, coral, sun | golden hour, slow rotating beam; exit to YouTube behind parental gate |
 | Islets puzzle | unlocked on map | **Fuzzle** ("try again" spirit) | shallow noon | foam, lagoon, sand islets | flat even light so piece edges read clearly |
 | Shadow game | unlocked on map | **Bitsy** with the lantern | dusk lantern | dusk `#EAD9F5` → night2, sun-yellow lantern cone | dark surround, lantern cone reveals plum silhouettes (85%) |
+
+**Shadow-game silhouettes** (BUG-005, v2): in the shadow game each monster appears in a dedicated colour **shadow-game pose** (`design/assets/shadows/color/`: same fur, face and horns as the book, plus one exaggerated pose/accessory: Fuzzle hug arms, Pip waving arm, Dottie giant paintbrush, Zib magnifier + curly antennae, Bitsy leaf parachute). Its silhouette is built from that picture's alpha (flat plum at 85 %, holes for the single eyes, Dottie's dots and Zib's lens), so shadow and monster always match. The book cutouts are never used as the colour picture next to these shadows. Any two silhouettes shown together must overlap by less than 0.6 IoU (target < 0.5) at the slot framing; current max 0.492.
 
 The guide assignments are proposals for the AD (characters' personalities in the books should drive the final choice).
 

@@ -6,8 +6,8 @@ ft=ImageFont.truetype(F+'LuckiestGuy.ttf',44); fb=ImageFont.truetype(F+'Baloo2-7
 PL=(58,23,82); CR=(255,246,229)
 places=['beach','cave','forest','library','lighthouse','islets','shadow']
 icons=['beach_shell','cave_palette','forest_magnifier','library_book','lighthouse_play','islets_puzzle','shadow_lantern','sound_on','sound_off','parental_gate','back','home','padlock','padlock_badge']
-W=2400; c=Image.new('RGBA',(W,3400),CR); d=ImageDraw.Draw(c)
-d.text((60,40),'LIL C MONSTERS · ASSETS v1.2 (WORKING DRAFT)',font=ft,fill=PL)
+W=2400; c=Image.new('RGBA',(W,4000),CR); d=ImageDraw.Draw(c)
+d.text((60,40),'LIL C MONSTERS · ASSETS v1.3 (WORKING DRAFT)',font=ft,fill=PL)
 d.text((60,100),'design/assets · places 200 dp export, shown at 140 dp × map scale (120 to 200 dp) · icons 44 to 96 dp · map 812×375 dp · 27 Oct 2026 · not final art',font=fb,fill=(90,63,107))
 y=150
 d.text((60,y),'1 · MAP DECOR (morning lagoon, empty spots) + phone-safe 16:9 crop (dashed)',font=fb,fill=PL); y+=36
@@ -22,6 +22,11 @@ tm=Image.open(A+'/map/2.0x/map_island_morning_tablet43.png').convert('RGBA'); tm
 tk=Image.open('/workspace/seamonsters/design/map_sketch_tablet43_v1.png').convert('RGBA').resize((900,675),Image.LANCZOS); c.alpha_composite(tk,(1000,y))
 d.text((60,y+680),'design/assets/map/map_island_morning_tablet43.png',font=fs,fill=PL); d.text((1000,y+680),'mockup: design/map_sketch_tablet43_v1.png',font=fs,fill=PL)
 y+=675+50
+d.text((60,y),'1c · COMPACT PHONE MAP (640×360 dp, screens 360 dp tall or less) + 568×320 mockup · places 120 dp × s, clamped 100 to 200 dp',font=fb,fill=PL); y+=36
+cm=Image.open(A+'/map/2.0x/map_island_morning_compact.png').convert('RGBA').resize((900,506),Image.LANCZOS); c.alpha_composite(cm,(60,y))
+ck=Image.open('/workspace/seamonsters/design/map_sketch_compact_568x320_v1.png').convert('RGBA').resize((900,507),Image.LANCZOS); c.alpha_composite(ck,(1000,y))
+d.text((60,y+512),'design/assets/map/map_island_morning_compact.png',font=fs,fill=PL); d.text((1000,y+512),'mockup: design/map_sketch_compact_568x320_v1.png',font=fs,fill=PL)
+y+=506+50
 d.text((60,y),'2 · PLACES · unlocked (top) / locked (mist + plum padlock) · on lagoon, at 140 dp @2x',font=fb,fill=PL); y+=36
 T=320
 for row,st in enumerate(['unlocked','locked']):

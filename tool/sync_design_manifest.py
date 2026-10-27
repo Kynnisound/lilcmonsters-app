@@ -5,14 +5,18 @@ design/. Copie aussi dans assets/images/map/ les images de carte referencees
 
 Usage : python3 tool/sync_design_manifest.py
 
-Format v1.2 du manifeste : map.layouts.phone (obligatoire) et
-map.layouts.tablet43 (facultative), chacune avec "map" (nom du fichier dans
+Format v1.3 du manifeste : map.layouts.phone (obligatoire),
+map.layouts.tablet43 et map.layouts.phone_compact (facultatives), chacune avec "map" (nom du fichier dans
 map/), "frame_dp", "places"{id: {"center_dp"}}, "guide_pad"{"foot_center_dp"}
 et "hud_safe_zone_dp"{"rect_ltrb"}. L'ancien format (map.spots) reste lu.
 Regle d'echelle (manifeste "scaling_rule") : cover pur,
-lieux = clamp(140 x s, 120, 200), HUD en dp fixes.
+lieux = clamp(base x s, min, max) lus dans "place_size" de chaque
+disposition (140 / 120 / 200 par defaut ; compacte : 120 / 100 / 200, tap
+>= 96 dp), HUD en dp fixes. map.layout_selection est recopie en
+commentaire et verifie (regle codee dans DesignArt.layoutFor).
 """
 import json
+import re
 import os
 import shutil
 
@@ -38,7 +42,12 @@ def normalise(entry):
     if hud is None:
         hud = next(iter(entry.get('ui_reserved_dp', {}).values()), None)
     w, h = entry['frame_dp']
+    size = entry.get('place_size') or {}
+    lo, hi = size.get('clamp_dp', [120, 200])
+    tap = re.search(r'max\(\s*(\d+(?:\.\d+)?)', str(size.get('tap_diameter', '')))
     return dict(image=image_of(entry), frame=(w, h),
+                base=size.get('base_dp', 140), lo=lo, hi=hi,
+                min_tap=float(tap.group(1)) if tap else 0,
                 spots={k: v['center_dp'] for k, v in places.items()},
                 foot=guide.get('foot_center_dp'), hud=hud or [w, 0, w, 0])
 
@@ -74,6 +83,10 @@ def dart_layout(entry):
         '  },',
         f'  guideFoot: {f"Offset({num(foot[0])}, {num(foot[1])})" if foot else "null"},',
         f'  hud: Rect.fromLTRB({", ".join(num(v) for v in hud)}),',
+        f"  placeBase: {num(e['base'])},",
+        f"  placeMin: {num(e['lo'])},",
+        f"  placeMax: {num(e['hi'])},",
+        f"  minTap: {num(e['min_tap'])},",
         ')',
     ]
     return '\n'.join(lines)
@@ -84,12 +97,20 @@ def main():
     layouts = m['map'].get('layouts')
     if layouts:
         phone, tablet = layouts['phone'], layouts.get('tablet43')
+        compact = layouts.get('phone_compact')
     else:  # format v1 : map.spots, map.guide_spot, map.ui_reserved_dp
         phone = dict(m['map'], map=None)
         phone.pop('map')
         phone['places'] = m['map']['spots']
         phone['variants'] = [v for v in m['map']['variants'] if 'safe16x9' not in v['name']]
         tablet = m.get('tablet43') or m['map'].get('tablet43')
+        compact = None
+    selection = m['map'].get('layout_selection', '')
+    expected = 'height <= 360 dp -> phone_compact; else width/height < 1.7 -> tablet43; else phone'
+    if compact or selection:
+        assert selection == expected, (
+            f'layout_selection a change : {selection!r} ; mettre a jour '
+            'DesignArt.layoutFor puis ce script')
     out = [
         '// GENERE par tool/sync_design_manifest.py depuis design/assets/manifest.json.',
         '// Ne pas modifier a la main : relancer le script.',
@@ -106,9 +127,16 @@ def main():
         'const MapLayout? designTablet43Layout = '
         + (dart_layout(tablet) if tablet else 'null') + ';',
         '',
+        '/// Carte compacte des petits telephones (manifest.json >',
+        '/// map.layouts.phone_compact). Nulle si absente.',
+        f'/// Selection (manifest.json > map.layout_selection) : {selection}',
+        'const MapLayout? designPhoneCompactLayout = '
+        + (dart_layout(compact) if compact else 'null') + ';',
+        '',
     ]
     open(OUT, 'w', encoding='utf-8').write('\n'.join(out))
-    print('ecrit', os.path.relpath(OUT, ROOT), '| tablet43 :', 'oui' if tablet else 'absente')
+    print('ecrit', os.path.relpath(OUT, ROOT), '| tablet43 :', 'oui' if tablet else 'absente',
+          '| phone_compact :', 'oui' if compact else 'absente')
 
 
 if __name__ == '__main__':

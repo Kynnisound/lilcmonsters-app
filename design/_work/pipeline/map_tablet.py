@@ -12,7 +12,7 @@ def T(p): return (round(X(p[0]),1), round(Y(p[1]),1))
 def TP(pts): return [T(p) for p in pts]
 SPOTS={k:T(v) for k,v in M.SPOTS.items()}
 GUIDE=T(M.GUIDE)
-HUD=(864,0,1024,112)   # top-right HUD-safe zone (sound 72 dp + parent gate 44 dp + margins)
+HUD=(844,0,1024,112)   # top-right HUD-safe zone (sound 72 dp + parent gate 44 dp + margins)
 SMALL_ISLETS=[(118,694,42,20,21),(934,700,48,22,22),(596,722,30,14,23),(908,214,34,16,24),(150,176,26,12,25)]
 
 def build():

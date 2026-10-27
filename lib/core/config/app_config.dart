@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Drapeaux de configuration lus au build via `--dart-define`.
 ///
 /// Exemples :
@@ -7,8 +9,8 @@ class AppConfig {
   const AppConfig({
     this.premiumUnlocked = false,
     this.unlockAllIslets = false,
-    this.parentalGateEnabled = true,
-  });
+    bool parentalGateEnabled = true,
+  }) : _parentalGateRequested = parentalGateEnabled;
 
   factory AppConfig.fromEnvironment() => const AppConfig(
     premiumUnlocked: bool.fromEnvironment('PREMIUM_UNLOCKED'),
@@ -26,8 +28,19 @@ class AppConfig {
   /// Ouvre directement le puzzle d'ilots et le jeu d'ombres sur la carte.
   final bool unlockAllIslets;
 
-  /// Desactivable uniquement pour le developpement.
-  final bool parentalGateEnabled;
+  final bool _parentalGateRequested;
+
+  /// Porte parentale. Desactivable uniquement en debug et en profile :
+  /// dans un build release, `PARENTAL_GATE=false` (ou une config de test)
+  /// est ignore et la porte reste active.
+  bool get parentalGateEnabled =>
+      resolveParentalGate(requested: _parentalGateRequested);
 
   static const youtubeChannelUrl = 'https://www.youtube.com/@LilCMonsters';
 }
+
+/// Regle unique : en release, la porte est toujours active.
+bool resolveParentalGate({
+  required bool requested,
+  bool release = kReleaseMode,
+}) => release || requested;

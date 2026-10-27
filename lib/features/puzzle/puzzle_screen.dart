@@ -9,6 +9,7 @@ import '../../core/content/game_random.dart';
 import '../../core/content/monsters.dart';
 import '../../core/l10n/strings.dart';
 import '../../core/progress/progress.dart';
+import '../../core/theme/app_insets.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/widgets/bouncy_button.dart';
 import '../../core/widgets/celebration.dart';
@@ -80,6 +81,13 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen> {
       semanticTitle: S.puzzle,
       guide: Monster.fuzzle,
       colors: const [AppColors.foam, AppColors.lagoon],
+      // Colonne de gauche reprise sous le bouton maison (PuzzleLayout).
+      padding: const EdgeInsets.fromLTRB(
+        AppInsets.edge,
+        AppInsets.edge,
+        ModuleScaffold.sideColumn,
+        AppInsets.edge,
+      ),
       trailing: Column(
         children: [
           _SizeChoice(n: 2, selected: _game.n == 2, onTap: () => _restart(2)),
@@ -89,59 +97,59 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen> {
       ),
       child: LayoutBuilder(
         builder: (context, c) {
-          final board = min(c.maxHeight, c.maxWidth * .55);
-          final cell = board / _game.n;
-          final trayPiece = max(AppSizes.minTouch, min(cell * .8, 110.0));
+          final layout = PuzzleLayout.compute(c.biggest, _game.n);
+          final tray = layout.tray;
           return Stack(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _Board(
-                    game: _game,
-                    image: _image,
-                    side: board,
-                    onDrop: _drop,
-                  ),
-                  const SizedBox(width: AppSizes.gap),
-                  Expanded(
-                    child: Center(
-                      child: _game.isComplete
-                          ? RoundIconButton.primary(
-                              key: const Key('puzzle-next'),
-                              icon: Icons.play_arrow_rounded,
-                              semanticLabel: 'Puzzle suivant',
-                              onTap: () => _restart(_game.n, nextImage: true),
-                            )
-                          : SingleChildScrollView(
-                              child: Wrap(
-                                spacing: AppSizes.gap / 2,
-                                runSpacing: AppSizes.gap / 2,
-                                children: [
-                                  for (final p in _game.tray)
-                                    _TrayPiece(
-                                      key: Key('tray-$p'),
-                                      piece: p,
-                                      image: _image,
-                                      n: _game.n,
-                                      side: trayPiece,
-                                      selected: _game.selected == p,
-                                      onTap: () {
-                                        ref
-                                            .read(audioServiceProvider)
-                                            .play(SoundEffect.piecePickup);
-                                        setState(() => _game = _game.select(p));
-                                      },
-                                      onDragStarted: () => ref
-                                          .read(audioServiceProvider)
-                                          .play(SoundEffect.piecePickup),
-                                    ),
-                                ],
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
+              Positioned(
+                left: layout.board.left,
+                top: layout.board.top,
+                child: _Board(
+                  game: _game,
+                  image: _image,
+                  side: layout.board.width,
+                  onDrop: _drop,
+                ),
+              ),
+              Positioned.fromRect(
+                rect: tray,
+                child: Center(
+                  child: _game.isComplete
+                      ? RoundIconButton.primary(
+                          key: const Key('puzzle-next'),
+                          icon: Icons.play_arrow_rounded,
+                          semanticLabel: 'Puzzle suivant',
+                          onTap: () => _restart(_game.n, nextImage: true),
+                        )
+                      // Toutes les pieces visibles, sans defilement (BUG-006).
+                      : SizedBox(
+                          width: layout.trayWidth,
+                          child: Wrap(
+                            spacing: PuzzleLayout.spacing,
+                            runSpacing: PuzzleLayout.spacing,
+                            children: [
+                              for (final p in _game.tray)
+                                _TrayPiece(
+                                  key: Key('tray-$p'),
+                                  piece: p,
+                                  image: _image,
+                                  n: _game.n,
+                                  side: layout.piece,
+                                  selected: _game.selected == p,
+                                  onTap: () {
+                                    ref
+                                        .read(audioServiceProvider)
+                                        .play(SoundEffect.piecePickup);
+                                    setState(() => _game = _game.select(p));
+                                  },
+                                  onDragStarted: () => ref
+                                      .read(audioServiceProvider)
+                                      .play(SoundEffect.piecePickup),
+                                ),
+                            ],
+                          ),
+                        ),
+                ),
               ),
               if (_celebrations > 0)
                 Positioned.fill(
@@ -152,6 +160,75 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen> {
         },
       ),
     );
+  }
+}
+
+/// Disposition du puzzle dans la zone de contenu (BUG-006) : plateau et bac
+/// sans defilement, pieces d'au moins 72 dp espacees de 8 dp. Le contenu
+/// commence sous le bord gauche (20 dp) : le plateau se place a droite du
+/// bouton maison, ou dessous quand la hauteur manque (telephones), selon ce
+/// qui donne le plus grand plateau.
+class PuzzleLayout {
+  const PuzzleLayout({
+    required this.board,
+    required this.tray,
+    required this.piece,
+    required this.columns,
+  });
+
+  final Rect board;
+  final Rect tray;
+  final double piece;
+  final int columns;
+
+  static const spacing = AppInsets.targetSpacing;
+  static const _boardGap = 16.0;
+  static const maxPiece = 110.0;
+
+  /// Coin du bouton maison dans la zone de contenu (72 dp + 8 dp).
+  static const homeReserve = AppSizes.homeButton + AppInsets.targetSpacing;
+
+  double get trayWidth => columns * piece + (columns - 1) * spacing;
+
+  static PuzzleLayout compute(Size area, int n) {
+    final count = n * n;
+    const p0 = AppSizes.minTouch;
+    final rowsMax = max(1, ((area.height + spacing) / (p0 + spacing)).floor());
+    final cols = (count / rowsMax).ceil();
+    final trayMin = cols * p0 + (cols - 1) * spacing;
+    final cap = area.width * .6;
+    // A : plateau a droite du bouton maison, toute la hauteur.
+    final sideA = [
+      area.height,
+      area.width - homeReserve - _boardGap - trayMin,
+      cap,
+    ].reduce(min);
+    // B : plateau sous le bouton maison, toute la largeur a gauche.
+    final sideB = [
+      area.height - homeReserve,
+      area.width - _boardGap - trayMin,
+      cap,
+    ].reduce(min);
+    final useB = sideB > sideA;
+    final side = max(0.0, useB ? sideB : sideA);
+    final left = useB ? 0.0 : homeReserve;
+    final top = useB
+        ? homeReserve + (area.height - homeReserve - side) / 2
+        : (area.height - side) / 2;
+    final board = Rect.fromLTWH(left, top, side, side);
+    final tray = Rect.fromLTRB(
+      board.right + _boardGap,
+      0,
+      max(board.right + _boardGap, area.width),
+      area.height,
+    );
+    final rows = (count / cols).ceil();
+    final fit = min(
+      (tray.width - (cols - 1) * spacing) / cols,
+      (tray.height - (rows - 1) * spacing) / rows,
+    );
+    final piece = max(p0, [side / n * .8, maxPiece, fit].reduce(min));
+    return PuzzleLayout(board: board, tray: tray, piece: piece, columns: cols);
   }
 }
 
@@ -202,16 +279,18 @@ class _Board extends StatelessWidget {
                 onAcceptWithDetails: (d) => onDrop(d.data, slot),
                 builder: (context, candidates, _) {
                   final filled = game.placed.contains(slot);
+                  final VoidCallback? tap = game.selected == null || filled
+                      ? null
+                      : () => onDrop(game.selected!, slot);
                   return Semantics(
                     button: !filled,
                     label: filled ? 'Piece posee' : 'Case ${slot + 1}',
                     excludeSemantics: true,
+                    onTap: tap,
                     child: GestureDetector(
                       key: Key('slot-$slot'),
                       behavior: HitTestBehavior.opaque,
-                      onTap: game.selected == null || filled
-                          ? null
-                          : () => onDrop(game.selected!, slot),
+                      onTap: tap,
                       child: Padding(
                         padding: const EdgeInsets.all(2),
                         child: filled
@@ -280,6 +359,7 @@ class _TrayPiece extends StatelessWidget {
       selected: selected,
       label: 'Piece de puzzle',
       excludeSemantics: true,
+      onTap: onTap,
       child: Draggable<int>(
         data: piece,
         onDragStarted: onDragStarted,

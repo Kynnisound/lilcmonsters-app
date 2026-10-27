@@ -12,10 +12,18 @@ List<String> _variants(String base) => base.endsWith('.wav')
 void main() {
   final pubspec = File('pubspec.yaml').readAsStringSync();
 
+  /// Declare dans pubspec.yaml : le fichier lui-meme (les sons sont
+  /// declares un par un, voir plus bas) ou son dossier.
   void expectDeclaredAndPresent(String path) {
     expect(File('assets/$path').existsSync(), isTrue, reason: path);
     final dir = 'assets/${path.substring(0, path.lastIndexOf('/') + 1)}';
-    expect(pubspec, contains('- $dir'), reason: '$dir dans pubspec.yaml');
+    final declared =
+        RegExp(
+          '- (path: )?${RegExp.escape('assets/$path')}\$',
+          multiLine: true,
+        ).hasMatch(pubspec) ||
+        pubspec.contains('- $dir\n');
+    expect(declared, isTrue, reason: 'assets/$path dans pubspec.yaml');
   }
 
   test('chaque son et chaque ambiance existe en .ogg et .m4a', () {
@@ -42,11 +50,12 @@ void main() {
     }
   });
 
-  test('aucun son genere inutilise dans assets/sounds', () {
-    final used = {for (final e in SoundEffect.values) 'assets/${e.base}'};
+  test('chaque note generee (assets/sounds) a sa copie de niveau jouee', () {
+    // Les .wav sont les sources de tool/normalize_pads.py (BUG-007).
+    final used = {for (final e in SoundEffect.values) e.base};
     for (final f in Directory('assets/sounds').listSync()) {
-      final p = f.path.replaceAll('\\', '/');
-      expect(used, contains(p), reason: '$p non utilise');
+      final name = f.uri.pathSegments.last.replaceAll('.wav', '');
+      expect(used, contains('audio_mix/notes/$name'), reason: name);
     }
   });
 
@@ -60,5 +69,34 @@ void main() {
       'audio/ui/ui_tap.m4a',
     );
     expect(resolveAudioAsset('sounds/note_do.wav'), 'sounds/note_do.wav');
+  });
+
+  test('.m4a reserves a iOS, macOS et web : ni APK ni AAB', () {
+    final audio = [
+      for (final d in Directory('assets').listSync(recursive: true))
+        if (d is File && RegExp(r'\.(ogg|m4a)$').hasMatch(d.path)) d.path,
+    ];
+    expect(audio, isNotEmpty);
+    for (final f in audio) {
+      final dir = f.substring(0, f.lastIndexOf('/') + 1);
+      // Aucun dossier audio declare en bloc : il ramenerait les .m4a.
+      expect(pubspec, isNot(contains('- $dir\n')), reason: dir);
+      if (f.endsWith('.m4a')) {
+        expect(
+          pubspec,
+          contains('- path: $f\n      platforms: [ios, macos, web]\n'),
+          reason: f,
+        );
+      } else {
+        expect(
+          RegExp(
+            '^    - ${RegExp.escape(f)}\$',
+            multiLine: true,
+          ).hasMatch(pubspec),
+          isTrue,
+          reason: f,
+        );
+      }
+    }
   });
 }

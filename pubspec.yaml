@@ -35,6 +35,8 @@ dependencies:
   flutter_riverpod: ^3.4.3
   audioplayers: ^6.8.1
   url_launcher: ^6.3.3
+  shared_preferences: ^2.5.6
+  web: ^1.1.2
 
 dev_dependencies:
   flutter_test:
@@ -46,6 +48,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.8
+  crypto: ^3.0.8
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -65,17 +70,93 @@ flutter:
     # Assets de travail de Margaux (v1, non valides), copies de design/assets/.
     # Retour arriere : --dart-define=DESIGN_ART_V1=false (lib/core/content/design_art.dart).
     - assets/images/map/
+    # Ombres dessinees par Margaux (version de travail, DESIGN_ART_V1)
+    - assets/images/shadows/
+    - assets/images/shadows/color/
     - assets/images/places/
     - assets/images/icons/
     # Sons de Shada (CC0 / domaine public), .ogg + .m4a, voir assets/audio/SOUNDS_MANIFEST.md
-    - assets/audio/beach/
-    - assets/audio/map/
-    - assets/audio/ui/
-    - assets/audio/puzzle/
-    - assets/audio/shadow/
-    - assets/audio/common/
-    # Notes des monstres generees par tool/gen_sounds.py
-    - assets/sounds/
+    # Declares fichier par fichier : les .m4a ne servent qu'a iOS et macOS
+    # (et au web, ou Safari sur iPhone se declare iOS) ; l'APK et l'AAB
+    # n'embarquent que les .ogg. Test : test/audio_assets_test.dart.
+    - assets/audio/beach/beach_ambience_loop.ogg
+    - path: assets/audio/beach/beach_ambience_loop.m4a
+      platforms: [ios, macos, web]
+    - assets/audio/map/map_ambience_loop.ogg
+    - path: assets/audio/map/map_ambience_loop.m4a
+      platforms: [ios, macos, web]
+    - assets/audio/ui/ui_back.ogg
+    - assets/audio/ui/ui_place_locked.ogg
+    - assets/audio/ui/ui_place_unlocked.ogg
+    - assets/audio/ui/ui_tap.ogg
+    - path: assets/audio/ui/ui_back.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio/ui/ui_place_locked.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio/ui/ui_place_unlocked.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio/ui/ui_tap.m4a
+      platforms: [ios, macos, web]
+    - assets/audio/puzzle/puzzle_complete.ogg
+    - assets/audio/puzzle/puzzle_piece_pickup.ogg
+    - assets/audio/puzzle/puzzle_piece_snap.ogg
+    - path: assets/audio/puzzle/puzzle_complete.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio/puzzle/puzzle_piece_pickup.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio/puzzle/puzzle_piece_snap.m4a
+      platforms: [ios, macos, web]
+    - assets/audio/shadow/shadow_found.ogg
+    - assets/audio/shadow/shadow_lantern_off.ogg
+    - assets/audio/shadow/shadow_lantern_on.ogg
+    - assets/audio/shadow/shadow_level_complete.ogg
+    - assets/audio/shadow/shadow_wrong.ogg
+    - path: assets/audio/shadow/shadow_found.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio/shadow/shadow_lantern_off.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio/shadow/shadow_lantern_on.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio/shadow/shadow_level_complete.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio/shadow/shadow_wrong.m4a
+      platforms: [ios, macos, web]
+    - assets/audio/common/success_badge.ogg
+    - path: assets/audio/common/success_badge.m4a
+      platforms: [ios, macos, web]
+    # Pads du bac a sable (bruitages de la plage et notes des monstres) a la
+    # meme sonie, -22 LUFS (tool/normalize_pads.py, BUG-007). Les sources des
+    # notes (assets/sounds/*.wav, tool/gen_sounds.py) ne sont plus embarquees.
+    - assets/audio_mix/beach/beach_bubbles.ogg
+    - assets/audio_mix/beach/beach_sand.ogg
+    - assets/audio_mix/beach/beach_seagull.ogg
+    - assets/audio_mix/beach/beach_shell.ogg
+    - assets/audio_mix/beach/beach_wave_splash.ogg
+    - path: assets/audio_mix/beach/beach_bubbles.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio_mix/beach/beach_sand.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio_mix/beach/beach_seagull.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio_mix/beach/beach_shell.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio_mix/beach/beach_wave_splash.m4a
+      platforms: [ios, macos, web]
+    - assets/audio_mix/notes/note_do.ogg
+    - assets/audio_mix/notes/note_la.ogg
+    - assets/audio_mix/notes/note_mi.ogg
+    - assets/audio_mix/notes/note_re.ogg
+    - assets/audio_mix/notes/note_sol.ogg
+    - path: assets/audio_mix/notes/note_do.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio_mix/notes/note_la.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio_mix/notes/note_mi.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio_mix/notes/note_re.m4a
+      platforms: [ios, macos, web]
+    - path: assets/audio_mix/notes/note_sol.m4a
+      platforms: [ios, macos, web]
 
   fonts:
     - family: LuckiestGuy

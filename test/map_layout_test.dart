@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:seamonsters/core/content/design_art.dart';
 import 'package:seamonsters/core/parental/parental_gate.dart';
+import 'package:seamonsters/core/theme/app_insets.dart';
 import 'package:seamonsters/core/theme/app_tokens.dart';
 import 'package:seamonsters/core/widgets/bouncy_button.dart';
 import 'package:seamonsters/core/widgets/wobble.dart';
@@ -20,30 +21,78 @@ void main() {
     expect(DesignArt.placeSize(4), 200);
   });
 
-  test('carte tablette quand largeur / hauteur < 1,7, si elle existe', () {
+  test('selection : compacte (h <= 360), tablette (< 1,7), telephone', () {
     const tablet = MapLayout(
       image: 'assets/images/map/test_43.png',
       frame: Size(1024, 768),
       spots: {},
-      hud: Rect.fromLTRB(864, 0, 1024, 112),
+      hud: Rect.fromLTRB(844, 0, 1024, 112),
     );
-    MapLayout pick(double w, double h, [MapLayout? t = tablet]) =>
-        DesignArt.layoutFor(Size(w, h), tablet: t);
-    expect(pick(1024, 768, null), same(DesignArt.phoneLayout));
+    const compact = MapLayout(
+      image: 'assets/images/map/test_compact.png',
+      frame: Size(640, 360),
+      spots: {},
+      hud: Rect.fromLTRB(468, 0, 640, 112),
+    );
+    const phone = DesignArt.phoneLayout;
+    MapLayout pick(
+      double w,
+      double h, {
+      MapLayout? t = tablet,
+      MapLayout? c = compact,
+    }) => DesignArt.layoutFor(Size(w, h), tablet: t, compact: c);
+    // Compacte : 360 dp de haut ou moins, quelle que soit la largeur.
+    for (final s in const [
+      Size(568, 320),
+      Size(640, 360),
+      Size(692, 360),
+      Size(740, 360),
+      Size(800, 360),
+      Size(480, 360), // 4:3 bas : compacte d'abord
+    ]) {
+      expect(pick(s.width, s.height), same(compact), reason: '$s');
+    }
+    expect(pick(740, 361), same(phone));
+    // Tablette : ratio < 1,7.
     expect(pick(1024, 768), same(tablet));
     expect(pick(1366, 1024), same(tablet));
     expect(pick(1280, 800), same(tablet)); // 16:10
     expect(pick(1359, 800), same(tablet)); // 1,699
-    expect(pick(1360, 800), same(DesignArt.phoneLayout)); // 1,7
-    expect(pick(1334, 750), same(DesignArt.phoneLayout)); // 16:9
-    expect(pick(1280, 720), same(DesignArt.phoneLayout));
-    expect(pick(800, 360), same(DesignArt.phoneLayout));
-    // Carte livree par Margaux (manifest.json > map.layouts.tablet43).
-    expect(DesignArt.tablet43Layout, isNotNull);
+    expect(pick(1360, 800), same(phone)); // 1,7
+    // Telephone.
+    for (final s in const [
+      Size(667, 375),
+      Size(812, 375),
+      Size(844, 390),
+      Size(932, 430),
+      Size(1334, 750),
+      Size(1280, 720),
+    ]) {
+      expect(pick(s.width, s.height), same(phone), reason: '$s');
+    }
+    // Dispositions absentes : sautees.
+    expect(pick(568, 320, c: null), same(phone));
+    expect(pick(1024, 768, t: null), same(phone));
+    // Dispositions livrees par Margaux.
+    expect(
+      DesignArt.layoutFor(const Size(568, 320)),
+      same(DesignArt.phoneCompactLayout),
+    );
     expect(
       DesignArt.layoutFor(const Size(1024, 768)),
       same(DesignArt.tablet43Layout),
     );
+    expect(DesignArt.layoutFor(const Size(812, 375)), same(phone));
+  });
+
+  test('carte compacte : lieux 120 dp x echelle, bornes 100 a 200, tap 96', () {
+    final c = DesignArt.phoneCompactLayout!;
+    final s = c.scaleFor(const Size(568, 320));
+    expect(s, closeTo(.889, .001));
+    expect(c.placeSize(s), closeTo(106.7, .1));
+    expect(c.placeSize(.5), 100);
+    expect(c.tapFor(100), 96);
+    expect(c.tapFor(c.placeSize(1)), closeTo(111.4, .1));
   });
 
   testWidgets('entree parents : inerte (aucun son) et 44 dp minimum', (
@@ -52,8 +101,9 @@ void main() {
     final h = await pumpApp(tester);
     final entry = find.byKey(const Key('parents-entry'));
     final size = tester.getSize(entry);
-    expect(size.width, greaterThanOrEqualTo(AppSizes.parentEntry));
-    expect(size.height, greaterThanOrEqualTo(AppSizes.parentEntry));
+    // BUG-009 : 48 dp (minimum Android), dessin discret de 44 dp.
+    expect(size.width, greaterThanOrEqualTo(AppInsets.adultTouch));
+    expect(size.height, greaterThanOrEqualTo(AppInsets.adultTouch));
     // Ni oscillation, ni rebond, ni ripple autour de l'entree.
     for (final t in [Wobble, BouncyButton, InkWell, InkResponse]) {
       expect(
@@ -72,6 +122,8 @@ void main() {
   });
 
   for (final screen in const [
+    Size(568, 320),
+    Size(640, 360),
     Size(740, 360),
     Size(800, 360),
     Size(1280, 720),
@@ -84,13 +136,17 @@ void main() {
       final h = await pumpApp(tester);
       tester.view.physicalSize = screen;
       await settle(tester, 4);
-      final scale = DesignArt.layoutFor(screen).scaleFor(screen);
-      final expected = DesignArt.enabled ? DesignArt.placeSize(scale) : null;
+      final layout = DesignArt.layoutFor(screen);
+      final scale = layout.scaleFor(screen);
+      final expected = DesignArt.enabled ? layout.placeSize(scale) : null;
       for (final p in IslandPlace.values) {
         final box = tester.getRect(find.byKey(Key('place-${p.name}')));
         expect(
           box.width,
-          inInclusiveRange(120 - 1e-6, 200 + 1e-6),
+          inInclusiveRange(
+            (DesignArt.enabled ? layout.placeMin : 120) - 1e-6,
+            200 + 1e-6,
+          ),
           reason: p.name,
         );
         if (expected != null) expect(box.width, closeTo(expected, .01));
@@ -110,9 +166,12 @@ void main() {
       expect(
         screen.width -
             tester.getRect(find.byKey(const Key('parents-entry'))).right,
-        12,
+        AppInsets.edge,
       );
-      expect(tester.getRect(find.byKey(const Key('mute-button'))).top, 12);
+      expect(
+        tester.getRect(find.byKey(const Key('mute-button'))).top,
+        AppInsets.edge,
+      );
       // HUD : taille fixe, quel que soit l'ecran.
       expect(
         tester.getSize(find.byKey(const Key('mute-button'))).width,
@@ -120,7 +179,7 @@ void main() {
       );
       expect(
         tester.getSize(find.byKey(const Key('parents-entry'))).width,
-        AppSizes.parentEntry,
+        AppInsets.adultTouch,
       );
       // La zone de tap suit le lieu : cercle de 130/140 centre.
       final beach = tester.getRect(find.byKey(const Key('place-beach')));

@@ -16,7 +16,7 @@ import '../../core/entitlements/premium_feature.dart';
 import '../../core/l10n/strings.dart';
 import '../../core/parental/parental_gate.dart';
 import '../../core/progress/progress.dart';
-import '../../core/router/routes.dart';
+import '../../core/theme/app_insets.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/widgets/round_icon_button.dart';
 import 'island_painter.dart';
@@ -68,6 +68,8 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
       audio.play(SoundEffect.uiTap);
       if (!await requestParentalAccess(context, ref)) return;
       if (!mounted) return;
+      // Laissez-passer a usage unique pour l'ecran demande (le phare).
+      ref.read(parentalAccessProvider).issuePass(ParentalPurpose.lighthouse);
     } else {
       audio.play(SoundEffect.placeUnlocked);
     }
@@ -81,9 +83,14 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
     final entitlements = ref.watch(entitlementsProvider).value ?? const {};
 
     // Ambiance de l'ile (oiseaux, mer au loin) tant que la carte est visible.
-    return AmbienceScope(
-      ambience: Ambience.map,
-      child: _scaffold(progress, muted, entitlements),
+    // Retour systeme sur la carte : rien (P1-T-03), jamais de sortie
+    // accidentelle de l'appli.
+    return PopScope(
+      canPop: false,
+      child: AmbienceScope(
+        ambience: Ambience.map,
+        child: _scaffold(progress, muted, entitlements),
+      ),
     );
   }
 
@@ -110,16 +117,17 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
             // Lieux : grandissent avec le decor (120 a 200 dp) ; mode de
             // repli : 120 a 140 dp selon l'ecran.
             final spot = DesignArt.enabled
-                ? DesignArt.placeSize(scale)
+                ? layout.placeSize(scale)
                 : (size.shortestSide * .3).clamp(
                     AppSizes.mapSpotMin,
                     AppSizes.mapSpotMax,
                   );
+            // Lieux hors des bords de gestes systeme (20 dp).
             final area = Rect.fromLTRB(
-              pad.left + 8,
-              pad.top + 8,
-              size.width - pad.right - 8,
-              size.height - pad.bottom - 8,
+              pad.left + AppInsets.edge,
+              pad.top + AppInsets.edge,
+              size.width - pad.right - AppInsets.edge,
+              size.height - pad.bottom - AppInsets.edge,
             );
             final origin = Offset(
               (size.width - frame.width * scale) / 2,
@@ -136,18 +144,26 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
             final foot = layout.guideFoot == null
                 ? null
                 : onMap(layout.guideFoot!);
-            // Zone du HUD a l'ecran (boutons de taille fixe en haut a droite) :
-            // un lieu qui la chevaucherait passe dessous.
-            final hudFrame = Rect.fromPoints(
-              onMap(layout.hud.topLeft),
-              onMap(layout.hud.bottomRight),
+            // Boutons du HUD (taille fixe, ancres a l'ecran) : prioritaires.
+            // Un lieu dont la boite les approcherait a moins de 8 dp passe
+            // dessous ; aucun cercle de tap ne les approche a moins de 8 dp.
+            final hudRight = size.width - pad.right - AppInsets.edge;
+            final hudTop = pad.top + AppInsets.edge;
+            final parentsRect = Rect.fromLTWH(
+              hudRight - AppInsets.adultTouch,
+              hudTop,
+              AppInsets.adultTouch,
+              AppInsets.adultTouch,
             );
-            final hud = Rect.fromLTRB(
-              min(hudFrame.left, size.width - pad.right - _hudWidth),
-              0,
-              size.width,
-              max(hudFrame.bottom, pad.top + 12 + AppSizes.homeButton),
+            final muteRect = Rect.fromLTWH(
+              parentsRect.left - AppSizes.gap - AppSizes.homeButton,
+              hudTop,
+              AppSizes.homeButton,
+              AppSizes.homeButton,
             );
+            final hudButtons = muteRect
+                .expandToInclude(parentsRect)
+                .inflate(AppInsets.targetSpacing);
             Rect placeRect(IslandPlace p) {
               final c = center(p);
               final left = (c.dx - spot / 2).clamp(
@@ -156,11 +172,20 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
               );
               var top = (c.dy - spot / 2).clamp(area.top, area.bottom - spot);
               final r = Rect.fromLTWH(left, top, spot, spot);
-              if (DesignArt.enabled && r.overlaps(hud)) {
-                top = min(hud.bottom, area.bottom - spot);
+              if (DesignArt.enabled && r.overlaps(hudButtons)) {
+                top = min(hudButtons.bottom, area.bottom - spot);
               }
               return Rect.fromLTWH(left, top, spot, spot);
             }
+
+            final rects = {for (final p in IslandPlace.values) p: placeRect(p)};
+            // Zones de tap circulaires espacees d'au moins 8 dp (BUG-010) :
+            // le dessin garde sa taille, seul le cercle de tap se resserre.
+            final taps = DesignArt.tapDiameters(
+              [for (final p in IslandPlace.values) rects[p]!.center],
+              DesignArt.enabled ? layout.tapFor(spot) : spot,
+              avoid: [muteRect, parentsRect],
+            );
 
             return Stack(
               children: [
@@ -210,13 +235,14 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
                 ],
                 for (final place in IslandPlace.values)
                   Positioned(
-                    left: placeRect(place).left,
-                    top: placeRect(place).top,
+                    left: rects[place]!.left,
+                    top: rects[place]!.top,
                     width: spot,
                     height: spot,
                     child: PlaceButton(
                       key: Key('place-${place.name}'),
                       place: place,
+                      tapRatio: taps[place.index] / spot,
                       unlocked: _unlocked(place, progress),
                       premiumOwned:
                           place.feature == null ||
@@ -224,43 +250,35 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
                       onOpen: () => _open(place),
                     ),
                   ),
-                // Coin adulte, en haut a droite : son + entree parents (44 dp).
+                // Coin adulte, en haut a droite : son + entree parents, a
+                // 20 dp des bords (zones de gestes systeme), sous l'encoche.
                 Positioned(
-                  top: pad.top + 12,
-                  right: pad.right + 12,
-                  child: SafeArea(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        RoundIconButton(
-                          key: const Key('mute-button'),
-                          icon: muted
-                              ? Icons.volume_off_rounded
-                              : Icons.volume_up_rounded,
-                          iconAsset: DesignArt.enabled
-                              ? (muted ? DesignArt.soundOff : DesignArt.soundOn)
-                              : null,
-                          semanticLabel: muted ? S.soundOff : S.soundOn,
-                          color: AppColors.foam,
-                          edgeColor: AppColors.lagoonDeep,
-                          onTap: () {
-                            ref
-                                .read(audioServiceProvider)
-                                .play(SoundEffect.uiTap);
-                            ref.read(mutedProvider.notifier).toggle();
-                          },
-                        ),
-                        const SizedBox(width: AppSizes.gap),
-                        _ParentEntry(
-                          onTap: () async {
-                            if (await requestParentalAccess(context, ref) &&
-                                context.mounted) {
-                              context.push(Routes.parents);
-                            }
-                          },
-                        ),
-                      ],
-                    ),
+                  top: pad.top + AppInsets.edge,
+                  right: pad.right + AppInsets.edge,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RoundIconButton(
+                        key: const Key('mute-button'),
+                        icon: muted
+                            ? Icons.volume_off_rounded
+                            : Icons.volume_up_rounded,
+                        iconAsset: DesignArt.enabled
+                            ? (muted ? DesignArt.soundOff : DesignArt.soundOn)
+                            : null,
+                        semanticLabel: muted ? S.soundOff : S.soundOn,
+                        color: AppColors.foam,
+                        edgeColor: AppColors.lagoonDeep,
+                        onTap: () {
+                          ref
+                              .read(audioServiceProvider)
+                              .play(SoundEffect.uiTap);
+                          ref.read(mutedProvider.notifier).toggle();
+                        },
+                      ),
+                      const SizedBox(width: AppSizes.gap),
+                      _ParentEntry(onTap: () => openParentsSpace(context, ref)),
+                    ],
                   ),
                 ),
               ],
@@ -272,12 +290,8 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
   }
 }
 
-/// Largeur du HUD en haut a droite : bouton son 72 dp, ecart, entree
-/// parents 44 dp, marge 12 dp.
-const _hudWidth =
-    12 + AppSizes.homeButton + AppSizes.gap + AppSizes.parentEntry + 12;
-
-/// Entree de l'espace parents : volontairement discrete (44 dp).
+/// Entree de l'espace parents : volontairement discrete (dessin de 44 dp)
+/// dans une zone de toucher de 48 dp (minimum Android, BUG-009).
 class _ParentEntry extends StatelessWidget {
   const _ParentEntry({required this.onTap});
   final VoidCallback onTap;
@@ -287,30 +301,37 @@ class _ParentEntry extends StatelessWidget {
     button: true,
     label: S.parents,
     excludeSemantics: true,
+    // Action exposee aux lecteurs d'ecran (BUG-008).
+    onTap: onTap,
     // Volontairement inerte (retour QA) : ni son, ni oscillation, ni
-    // animation, ni ripple ; zone tactile opaque de 44 dp minimum.
+    // animation, ni ripple ; zone tactile opaque de 48 dp.
     child: GestureDetector(
       key: const Key('parents-entry'),
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: SizedBox.square(
-        dimension: AppSizes.parentEntry,
-        child: DesignArt.enabled
-            // Roue dentee grise de Margaux (provisoire), dessinee telle
-            // quelle, sans disque ni relief.
-            ? Image.asset(DesignArt.parentalGate)
-            : DecoratedBox(
-                decoration: BoxDecoration(
-                  color: AppColors.paper.withValues(alpha: .8),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.plum, width: 2),
-                ),
-                child: const Icon(
-                  Icons.family_restroom_rounded,
-                  size: 24,
-                  color: AppColors.plum,
-                ),
-              ),
+        dimension: AppInsets.adultTouch,
+        child: Center(
+          child: SizedBox.square(
+            dimension: AppSizes.parentEntry,
+            child: DesignArt.enabled
+                // Roue dentee grise de Margaux (provisoire), dessinee telle
+                // quelle, sans disque ni relief.
+                ? Image.asset(DesignArt.parentalGate)
+                : DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.paper.withValues(alpha: .8),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.plum, width: 2),
+                    ),
+                    child: const Icon(
+                      Icons.family_restroom_rounded,
+                      size: 24,
+                      color: AppColors.plum,
+                    ),
+                  ),
+          ),
+        ),
       ),
     ),
   );

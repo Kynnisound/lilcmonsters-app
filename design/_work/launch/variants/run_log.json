@@ -1,0 +1,118 @@
+{
+ "deep_ios_ring": {
+  "ring_px": 125942,
+  "mean_bg": "#06524F",
+  "contrast_blue_min": 2.33,
+  "contrast_blue_median": 2.85,
+  "contrast_blue_vs_mean": 2.76,
+  "contrast_plum_vs_mean": 1.64
+ },
+ "deep_android_ring": {
+  "ring_px": 14307,
+  "mean_bg": "#054E4B",
+  "contrast_blue_min": 2.66,
+  "contrast_blue_median": 2.98,
+  "contrast_blue_vs_mean": 2.95,
+  "contrast_plum_vs_mean": 1.54
+ },
+ "v1_android_ring": {
+  "ring_px": 14307,
+  "mean_bg": "#52C4B6",
+  "contrast_blue_min": 1.29,
+  "contrast_blue_median": 1.59,
+  "contrast_blue_vs_mean": 1.54,
+  "contrast_plum_vs_mean": 6.99
+ },
+ "flat": {
+  "blue_on_#0B6E6A": 1.87,
+  "blue_on_splash_#075653": 2.62,
+  "blue_on_#3FC1B0": 1.47,
+  "blue_on_pool_#04423F": 3.47
+ },
+ "splash_deep": {
+  "plum_outline": 1.73,
+  "blue": 2.62,
+  "sun_horns": 6.03
+ },
+ "fg_identical_to_v1": true,
+ "branding": {
+  "bbox_800": [
+   55,
+   37,
+   746,
+   286
+  ],
+  "corner_alpha": 0,
+  "cream_on_lagoon": 1.97,
+  "plum_on_lagoon": 6.65,
+  "cream_on_deep": 7.57,
+  "plum_on_deep": 1.73,
+  "cream_vs_plum": 13.1,
+  "sun_vs_plum": 10.44
+ },
+ "files": [
+  {
+   "file": "variants/deep/ios/app_icon_1024.png",
+   "size": [
+    1024,
+    1024
+   ],
+   "mode": "RGB",
+   "ok": true
+  },
+  {
+   "file": "variants/deep/android/ic_launcher_background.png",
+   "size": [
+    432,
+    432
+   ],
+   "mode": "RGB",
+   "ok": true
+  },
+  {
+   "file": "variants/deep/android/play_store/play_store_512.png",
+   "size": [
+    512,
+    512
+   ],
+   "mode": "RGB",
+   "ok": true
+  },
+  {
+   "file": "splash/branding/branding.png",
+   "size": [
+    200,
+    80
+   ],
+   "mode": "RGBA",
+   "ok": true
+  },
+  {
+   "file": "splash/branding/2.0x/branding.png",
+   "size": [
+    400,
+    160
+   ],
+   "mode": "RGBA",
+   "ok": true
+  },
+  {
+   "file": "splash/branding/3.0x/branding.png",
+   "size": [
+    600,
+    240
+   ],
+   "mode": "RGBA",
+   "ok": true
+  },
+  {
+   "file": "splash/branding/branding_android12_800x320.png",
+   "size": [
+    800,
+    320
+   ],
+   "mode": "RGBA",
+   "ok": true
+  }
+ ]
+}

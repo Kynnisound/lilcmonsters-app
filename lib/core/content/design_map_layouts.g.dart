@@ -19,7 +19,11 @@ const designPhoneLayout = MapLayout(
     'islets': Offset(662.0, 300.0),
   },
   guideFoot: Offset(480.0, 346.0),
-  hud: Rect.fromLTRB(690.0, 0.0, 812.0, 100.0),
+  hud: Rect.fromLTRB(632.0, 0.0, 812.0, 112.0),
+  placeBase: 140.0,
+  placeMin: 120.0,
+  placeMax: 200.0,
+  minTap: 0.0,
 );
 
 /// Carte tablette 4:3 (manifest.json > map.layouts.tablet43). Nulle si
@@ -37,5 +41,32 @@ const MapLayout? designTablet43Layout = MapLayout(
     'islets': Offset(783.4, 532.0),
   },
   guideFoot: Offset(590.4, 577.1),
-  hud: Rect.fromLTRB(864.0, 0.0, 1024.0, 112.0),
+  hud: Rect.fromLTRB(844.0, 0.0, 1024.0, 112.0),
+  placeBase: 140.0,
+  placeMin: 120.0,
+  placeMax: 200.0,
+  minTap: 0.0,
+);
+
+/// Carte compacte des petits telephones (manifest.json >
+/// map.layouts.phone_compact). Nulle si absente.
+/// Selection (manifest.json > map.layout_selection) : height <= 360 dp -> phone_compact; else width/height < 1.7 -> tablet43; else phone
+const MapLayout? designPhoneCompactLayout = MapLayout(
+  image: 'assets/images/map/map_island_morning_compact.png',
+  frame: Size(640.0, 360.0),
+  spots: {
+    'cave': Offset(92.0, 104.0),
+    'forest': Offset(226.0, 124.0),
+    'lighthouse': Offset(360.0, 104.0),
+    'beach': Offset(96.0, 268.0),
+    'library': Offset(240.0, 280.0),
+    'shadow': Offset(466.0, 186.0),
+    'islets': Offset(550.0, 276.0),
+  },
+  guideFoot: Offset(374.0, 332.0),
+  hud: Rect.fromLTRB(468.0, 0.0, 640.0, 112.0),
+  placeBase: 120.0,
+  placeMin: 100.0,
+  placeMax: 200.0,
+  minTap: 96.0,
 );

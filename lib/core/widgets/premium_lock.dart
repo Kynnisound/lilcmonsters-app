@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../audio/audio_providers.dart';
 import '../audio/sound_effect.dart';
 import '../l10n/strings.dart';
 import '../parental/parental_gate.dart';
-import '../router/routes.dart';
 import 'locked_badge.dart';
 
 /// Recouvre un contenu payant : toucher declenche la porte parentale puis
@@ -19,18 +17,20 @@ class PremiumLock extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Future<void> open() async {
+      ref.read(audioServiceProvider).play(SoundEffect.placeLocked);
+      await openParentsSpace(context, ref);
+    }
+
     return Semantics(
       button: true,
       label: S.premium,
       excludeSemantics: true,
+      // Action exposee aux lecteurs d'ecran (BUG-008).
+      onTap: open,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () async {
-          ref.read(audioServiceProvider).play(SoundEffect.placeLocked);
-          if (await requestParentalAccess(context, ref) && context.mounted) {
-            context.push(Routes.parents);
-          }
-        },
+        onTap: open,
         child: Stack(
           children: [
             Positioned.fill(
