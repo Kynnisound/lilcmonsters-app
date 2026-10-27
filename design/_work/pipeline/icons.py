@@ -27,10 +27,10 @@ def beach_shell():
     s=shape(shell,SHELL,SHELLD,blob(32,32,9,5))
     s=s.replace('</g><path d="'+shell+'" fill="none"', ribs+'</g><path d="'+shell+'" fill="none"',1)
     hinge=shape('M36,74 h24 a5,5 0 0 1 5,5 v3 a5,5 0 0 1 -5,5 h-24 a5,5 0 0 1 -5,-5 v-3 a5,5 0 0 1 5,-5 Z',SHELL,SHELLD)
-    note=(shape('M80,8 l9,4 v8 l-9,-4 Z',SUN,SUND,off=(0,0),sw=3.5)+
-          shape('M77,9 h5 v24 h-5 Z',SUN,SUND,off=(0,0),sw=3.5)+
-          shape(ell(72,34,8,6.5),SUN,SUND,blob(70,32,3,2)))
-    return s+hinge+note
+    note=(shape('M72,4 L92,10 L92,20 L72,14 Z',SUN,SUND,off=(0,0),sw=3.5)+
+          shape('M68,5 h7 v34 h-7 Z',SUN,SUND,off=(0,0),sw=3.5)+
+          shape(ell(64,40,11,9),SUN,SUND,blob(61,37,4,2.4,c=CREAM),hlop=.8))
+    return '<g transform="translate(-4 6) scale(.9)">'+s+hinge+'</g>'+note
 
 def cave_palette():
     pal=('M50,14 C76,14 90,30 88,50 C86,66 72,70 64,66 C56,62 49,66 54,75 C58,83 50,87 42,85 '
@@ -101,12 +101,17 @@ def sound_on():
 def sound_off():
     return speaker(MIST,MISTD)+line('M62,36 L84,60',7)+line('M84,36 L62,60',7)
 
+GATE='#5A536C'; GATE_LINE='#4A4459'   # mauve-grey: 3.2:1 on lagoon, 6.7:1 on cream
 def parental_gate():
-    adult=circ(36,24,11)+' '; kid=circ(66,40,8)
-    ab='M18,86 L18,58 C18,46 26,40 36,40 C46,40 54,46 54,58 L54,86 Z'
-    kb='M54,86 L54,70 C54,61 59,56 66,56 C73,56 78,61 78,70 L78,86 Z'
-    return (shape(ab,P2,'#4E1A75',off=(-2,-2))+shape(circ(36,24,11),P2,'#4E1A75',blob(32,20,4,2.5,c='#B07FD0'),hlop=.9,off=(-2,-2))
-            +shape(kb,LAGD,'#074B48',off=(-2,-2))+shape(kid,LAGD,'#074B48',blob(63,37,3,2,c='#5FB3AE'),hlop=.9,off=(-2,-2)))
+    """Parent-only gear: flat, monochrome, thin 2-unit outline, no gloss, no relief, no people."""
+    import math
+    n=8; R=44; r=34; pts=[]
+    for i in range(n):
+        c=2*math.pi*i/n
+        for da,rad in [(-0.36,r),(-0.20,R),(0.20,R),(0.36,r)]:
+            pts.append((48+rad*math.cos(c+da), 48+rad*math.sin(c+da)))
+    d='M'+' L'.join(f'{x:.2f},{y:.2f}' for x,y in pts)+' Z '+circ(48,48,14)
+    return (f'<path d="{d}" fill="{GATE}" fill-rule="evenodd" stroke="{GATE_LINE}" stroke-width="2" stroke-linejoin="round"/>')
 
 def back():
     d='M44,14 a5,5 0 0 1 8,4 v14 h24 a8,8 0 0 1 8,8 v16 a8,8 0 0 1 -8,8 h-24 v14 a5,5 0 0 1 -8,4 L10,52 a5,5 0 0 1 0,-8 Z'
@@ -141,12 +146,14 @@ ICONS={  # name -> (fn, intended dp, use)
  'shadow_lantern':(shadow_lantern,'Shadow game place badge (replaces lantern glyph)'),
  'sound_on':(sound_on,'Map top-right sound toggle, on'),
  'sound_off':(sound_off,'Map top-right sound toggle, off'),
- 'parental_gate':(parental_gate,'Parental gate entry, top-right (deliberately low-salience)'),
+ 'parental_gate':(parental_gate,'Parental gate entry, map top-right only, outside the play area: flat mauve-grey gear, no animation, no sound'),
  'back':(back,'Back, top-left (inside a module sub-screen)'),
  'home':(home,'Home / back to map, top-left on every place screen'),
  'padlock':(padlock,'Padlock for locked buttons and cards'),
  'padlock_badge':(padlock_badge,'Round padlock badge overlaid on locked landmarks / tiles'),
 }
-def svg_icon(name, pad=4):
+PAD={'parental_gate':1}
+def svg_icon(name, pad=None):
+    pad=PAD.get(name,4) if pad is None else pad
     body=ICONS[name][0]()
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{-pad} {-pad} {96+2*pad} {96+2*pad}" width="104" height="104">{body}</svg>')

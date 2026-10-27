@@ -1,5 +1,5 @@
-"""Genere des sons placeholder libres de droits (synthese maison, domaine public / CC0).
-Usage: python3 tool/gen_sounds.py  -> ecrit assets/sounds/*.wav"""
+"""Genere les 5 notes pentatoniques des monstres (synthese maison, domaine public / CC0).
+Usage: python3 tool/gen_sounds.py  -> ecrit assets/sounds/note_*.wav"""
 import math, random, struct, wave, os
 SR = 22050
 OUT = os.path.join(os.path.dirname(__file__), '..', 'assets', 'sounds')
@@ -70,7 +70,7 @@ def seq(freqs, step=0.12):
 C5, D5, E5, G5, A5, C6 = 523.25, 587.33, 659.25, 783.99, 880.0, 1046.5
 write('note_do', bell(C5)); write('note_re', bell(D5)); write('note_mi', bell(E5))
 write('note_sol', bell(G5)); write('note_la', bell(A5))
-write('boing', boing()); write('pop', pop()); write('wave', wave_sound()); write('drum', drum())
-write('chime', chord([C6, E5 * 2, G5 * 2])); write('success', seq([C5, E5, G5, C6]))
-write('tap', pop(0.08))
+# Les autres bruitages (boing, pop, wave, drum, chime, success, tap) sont
+# remplaces par les sons de Shada (assets/audio/) ; seules les 5 notes
+# pentatoniques des monstres restent generees ici.
 print('ok')

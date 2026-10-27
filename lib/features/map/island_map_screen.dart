@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/audio/ambience_scope.dart';
 import '../../core/audio/audio_providers.dart';
 import '../../core/audio/sound_effect.dart';
+
+import 'dart:math';
+
+import '../../core/content/design_art.dart';
+import '../../core/content/monsters.dart';
 import '../../core/content/scenes.dart';
 import '../../core/entitlements/entitlement_providers.dart';
+import '../../core/entitlements/premium_feature.dart';
 import '../../core/l10n/strings.dart';
 import '../../core/parental/parental_gate.dart';
 import '../../core/progress/progress.dart';
@@ -58,11 +65,11 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
   Future<void> _open(IslandPlace place) async {
     final audio = ref.read(audioServiceProvider);
     if (place.access == PlaceAccess.parental) {
-      audio.play(SoundEffect.tap);
+      audio.play(SoundEffect.uiTap);
       if (!await requestParentalAccess(context, ref)) return;
       if (!mounted) return;
     } else {
-      audio.play(place.guide.note);
+      audio.play(SoundEffect.placeUnlocked);
     }
     if (mounted) context.go(place.route);
   }
@@ -73,6 +80,18 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
     final muted = ref.watch(mutedProvider);
     final entitlements = ref.watch(entitlementsProvider).value ?? const {};
 
+    // Ambiance de l'ile (oiseaux, mer au loin) tant que la carte est visible.
+    return AmbienceScope(
+      ambience: Ambience.map,
+      child: _scaffold(progress, muted, entitlements),
+    );
+  }
+
+  Widget _scaffold(
+    Progress progress,
+    bool muted,
+    Set<PremiumFeature> entitlements,
+  ) {
     return Scaffold(
       backgroundColor: AppColors.lagoon,
       body: Semantics(
@@ -93,35 +112,81 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
               size.width - pad.right - 8,
               size.height - pad.bottom - 8,
             );
+            // Assets de Margaux : cadre 812 x 375 dp en BoxFit.cover, reduit
+            // si besoin pour que la largeur utile (667 dp) tienne (tablette).
+            final frame = DesignArt.mapFrame;
+            final scale = min(
+              max(size.width / frame.width, size.height / frame.height),
+              size.width / DesignArt.mapSafeWidth,
+            );
+            final origin = Offset(
+              (size.width - frame.width * scale) / 2,
+              (size.height - frame.height * scale) / 2,
+            );
+            Offset onMap(Offset dp) => origin + dp * scale;
+            Offset center(IslandPlace p) => DesignArt.enabled
+                ? onMap(DesignArt.mapSpots[p.artId]!)
+                : Offset(
+                    area.left + p.position.dx * area.width,
+                    area.top + p.position.dy * area.height,
+                  );
+            final guideH = (DesignArt.guideHeight * scale).clamp(64.0, 110.0);
+            final foot = onMap(DesignArt.guideFoot);
             return Stack(
               children: [
-                // Mer, phare et bateau des monstres (illustration du site).
-                Positioned.fill(
-                  child: ExcludeSemantics(
-                    child: Image.asset(
-                      Scenes.map,
-                      fit: BoxFit.cover,
-                      alignment: Alignment.bottomRight,
+                if (DesignArt.enabled) ...[
+                  Positioned(
+                    left: origin.dx,
+                    top: origin.dy,
+                    width: frame.width * scale,
+                    height: frame.height * scale,
+                    child: ExcludeSemantics(
+                      child: Image.asset(DesignArt.map, fit: BoxFit.fill),
                     ),
                   ),
-                ),
-                Positioned.fill(
-                  child: ExcludeSemantics(
-                    child: AnimatedBuilder(
-                      animation: _sea,
-                      builder: (_, _) => CustomPaint(
-                        painter: IslandPainter(_sea.value, seaVeil: .5),
+                  // Le guide (Fuzzle) attend sur son emplacement vide.
+                  Positioned(
+                    left: foot.dx - guideH * .45,
+                    top: foot.dy - guideH,
+                    height: guideH,
+                    child: IgnorePointer(
+                      child: ExcludeSemantics(
+                        child: Image.asset(Monster.fuzzle.asset),
                       ),
                     ),
                   ),
-                ),
+                ] else ...[
+                  // Mer, phare et bateau des monstres (illustration du site).
+                  Positioned.fill(
+                    child: ExcludeSemantics(
+                      child: Image.asset(
+                        Scenes.map,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.bottomRight,
+                      ),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: ExcludeSemantics(
+                      child: AnimatedBuilder(
+                        animation: _sea,
+                        builder: (_, _) => CustomPaint(
+                          painter: IslandPainter(_sea.value, seaVeil: .5),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
                 for (final place in IslandPlace.values)
                   Positioned(
-                    left:
-                        (area.left + place.position.dx * area.width - spot / 2)
-                            .clamp(area.left, area.right - spot),
-                    top: (area.top + place.position.dy * area.height - spot / 2)
-                        .clamp(area.top, area.bottom - spot),
+                    left: (center(place).dx - spot / 2).clamp(
+                      area.left,
+                      area.right - spot,
+                    ),
+                    top: (center(place).dy - spot / 2).clamp(
+                      area.top,
+                      area.bottom - spot,
+                    ),
                     width: spot,
                     height: spot,
                     child: PlaceButton(
@@ -147,11 +212,18 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
                           icon: muted
                               ? Icons.volume_off_rounded
                               : Icons.volume_up_rounded,
+                          iconAsset: DesignArt.enabled
+                              ? (muted ? DesignArt.soundOff : DesignArt.soundOn)
+                              : null,
                           semanticLabel: muted ? S.soundOff : S.soundOn,
                           color: AppColors.foam,
                           edgeColor: AppColors.lagoonDeep,
-                          onTap: () =>
-                              ref.read(mutedProvider.notifier).toggle(),
+                          onTap: () {
+                            ref
+                                .read(audioServiceProvider)
+                                .play(SoundEffect.uiTap);
+                            ref.read(mutedProvider.notifier).toggle();
+                          },
                         ),
                         const SizedBox(width: AppSizes.gap),
                         _ParentEntry(
@@ -196,11 +268,16 @@ class _ParentEntry extends StatelessWidget {
           shape: BoxShape.circle,
           border: Border.all(color: AppColors.plum, width: 2),
         ),
-        child: const Icon(
-          Icons.family_restroom_rounded,
-          size: 24,
-          color: AppColors.plum,
-        ),
+        child: DesignArt.enabled
+            ? Padding(
+                padding: const EdgeInsets.all(4),
+                child: Image.asset(DesignArt.parentalGate),
+              )
+            : const Icon(
+                Icons.family_restroom_rounded,
+                size: 24,
+                color: AppColors.plum,
+              ),
       ),
     ),
   );

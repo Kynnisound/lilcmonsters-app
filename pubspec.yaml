@@ -62,6 +62,19 @@ flutter:
     - assets/images/videos/
     - assets/images/scenes/
     - assets/images/puzzle/
+    # Assets de travail de Margaux (v1, non valides), copies de design/assets/.
+    # Retour arriere : --dart-define=DESIGN_ART_V1=false (lib/core/content/design_art.dart).
+    - assets/images/map/
+    - assets/images/places/
+    - assets/images/icons/
+    # Sons de Shada (CC0 / domaine public), .ogg + .m4a, voir assets/audio/SOUNDS_MANIFEST.md
+    - assets/audio/beach/
+    - assets/audio/map/
+    - assets/audio/ui/
+    - assets/audio/puzzle/
+    - assets/audio/shadow/
+    - assets/audio/common/
+    # Notes des monstres generees par tool/gen_sounds.py
     - assets/sounds/
 
   fonts:

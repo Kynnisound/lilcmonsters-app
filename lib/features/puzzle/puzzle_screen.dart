@@ -50,6 +50,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen> {
   String get _image => puzzleImages[_imageIndex % puzzleImages.length];
 
   void _restart(int n, {bool nextImage = false}) {
+    ref.read(audioServiceProvider).play(SoundEffect.uiTap);
     setState(() {
       if (nextImage) _imageIndex++;
       _game = PuzzleGame.start(n, ref.read(gameRandomProvider));
@@ -59,16 +60,17 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen> {
   void _drop(int piece, int slot) {
     final audio = ref.read(audioServiceProvider);
     if (!_game.fits(piece, slot)) {
-      audio.play(SoundEffect.pop);
+      // Pas de son d'echec : un petit "non" tres doux.
+      audio.play(SoundEffect.placeLocked);
       return;
     }
     setState(() => _game = _game.place(piece, slot));
     if (_game.isComplete) {
-      audio.play(SoundEffect.success);
+      audio.play(SoundEffect.puzzleComplete);
       ref.read(progressProvider.notifier).puzzleSolved();
       setState(() => _celebrations++);
     } else {
-      audio.play(SoundEffect.tap);
+      audio.play(SoundEffect.pieceSnap);
     }
   }
 
@@ -127,9 +129,12 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen> {
                                       onTap: () {
                                         ref
                                             .read(audioServiceProvider)
-                                            .play(SoundEffect.tap);
+                                            .play(SoundEffect.piecePickup);
                                         setState(() => _game = _game.select(p));
                                       },
+                                      onDragStarted: () => ref
+                                          .read(audioServiceProvider)
+                                          .play(SoundEffect.piecePickup),
                                     ),
                                 ],
                               ),
@@ -250,6 +255,7 @@ class _TrayPiece extends StatelessWidget {
     required this.side,
     required this.selected,
     required this.onTap,
+    required this.onDragStarted,
   });
 
   final int piece;
@@ -258,6 +264,7 @@ class _TrayPiece extends StatelessWidget {
   final double side;
   final bool selected;
   final VoidCallback onTap;
+  final VoidCallback onDragStarted;
 
   @override
   Widget build(BuildContext context) {
@@ -275,6 +282,7 @@ class _TrayPiece extends StatelessWidget {
       excludeSemantics: true,
       child: Draggable<int>(
         data: piece,
+        onDragStarted: onDragStarted,
         feedback: Material(
           color: Colors.transparent,
           child: Transform.scale(scale: 1.08, child: view),

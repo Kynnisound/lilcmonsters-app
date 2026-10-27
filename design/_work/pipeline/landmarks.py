@@ -7,12 +7,13 @@ sys.path.insert(0, os.path.dirname(__file__))
 from icons import svg_icon  # padlock badge shared with the icon set
 
 G='/workspace/seamonsters/design/_work/assets_gen'
-OUT='/workspace/seamonsters/design/assets/landmarks'
+OUT='/workspace/seamonsters/design/assets/places'
 PLUM=np.array([58,23,82],float); BORDER=np.array([108,52,115],float)
 MIST=np.array([0xB9,0xB3,0xC7],float)
 DP=140  # landmark box in dp (hit area 120-140 dp centred in it)
-SRC={'beach':'lm_beach_b','cave':'lm_cave_a','forest':'lm_forest_a','library':'lm_library_a',
+SRC={'beach':'lm_beach_b','cave':'lm_cave_b','forest':'lm_forest_a','library':'lm_library_a',
      'lighthouse':'lm_lighthouse_a','islets':'lm_islets_a','shadow':'lm_shadow_b'}
+SAT={'shadow':1.3}
 SRC.update(json.loads(os.environ.get('LM_OVERRIDE','{}')))
 
 def cutout(path):
@@ -66,7 +67,7 @@ def locked(img):
     plumness=np.clip((95-np.sqrt(((rgb-PLUM)**2).sum(2)))/40,0,1)
     # map luminance onto a mist ramp (dark mist -> light mist), keep value structure
     t=(lum/255.0)[...,None]
-    lo=np.array([0x8F,0x88,0xA3],float); hi=np.array([0xE4,0xE0,0xEC],float)
+    lo=np.array([0x76,0x6E,0x8E],float); hi=np.array([0xDE,0xD9,0xE8],float)
     ramp=lo*(1-t)+hi*t
     out=ramp*0.88+rgb*0.12
     out=out*(1-plumness[...,None])+np.array([0x5A,0x3F,0x6B])*plumness[...,None]  # outline stays plum-ish (inkSoft)
@@ -94,6 +95,9 @@ if __name__=='__main__':
     os.makedirs(G+'/cut',exist_ok=True)
     for name,src in SRC.items():
         c=fit_square(cutout(f'{G}/{src}.jpg'))
+        if name in SAT:
+            from PIL import ImageEnhance
+            a=c.getchannel('A'); c=ImageEnhance.Color(c.convert('RGB')).enhance(SAT[name]).convert('RGBA'); c.putalpha(a)
         c.save(f'{G}/cut/{name}.png')
         export(c,name,'unlocked'); export(locked(c),name,'locked')
         print(name,c.size)

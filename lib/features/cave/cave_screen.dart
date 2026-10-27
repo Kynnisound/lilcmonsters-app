@@ -87,7 +87,9 @@ class _CaveScreenState extends ConsumerState<CaveScreen> {
                       key: Key('coloring-$i'),
                       semanticLabel: 'Coloriage ${i + 1}',
                       onTap: () {
-                        ref.read(audioServiceProvider).play(SoundEffect.chime);
+                        ref
+                            .read(audioServiceProvider)
+                            .play(SoundEffect.placeUnlocked);
                         setState(() => _page = i);
                       },
                       child: card,
@@ -154,7 +156,7 @@ class _CaveScreenState extends ConsumerState<CaveScreen> {
                   semanticLabel: 'Couleur',
                   size: const Size.square(AppSizes.colorDot),
                   onTap: () {
-                    ref.read(audioServiceProvider).play(SoundEffect.pop);
+                    ref.read(audioServiceProvider).play(SoundEffect.uiTap);
                     setState(() => _color = c);
                   },
                   child: Container(

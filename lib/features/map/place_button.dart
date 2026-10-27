@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/audio/audio_providers.dart';
 import '../../core/audio/sound_effect.dart';
+import '../../core/content/design_art.dart';
 import '../../core/l10n/strings.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/widgets/bouncy_button.dart';
@@ -66,46 +67,89 @@ class _PlaceButtonState extends ConsumerState<PlaceButton> {
         semanticLabel: label,
         onTap: () {
           if (locked) {
-            ref.read(audioServiceProvider).play(SoundEffect.boing);
+            ref.read(audioServiceProvider).play(SoundEffect.placeLocked);
             setState(() => _wobble++);
             return;
           }
           setState(() => _justUnlocked = false);
           widget.onOpen();
         },
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned.fill(
-              child: ToyDisc(
-                color: locked ? AppColors.mist : AppColors.paper,
-                edgeColor: locked ? AppColors.mistDeep : p.guide.color,
-                ring: _justUnlocked ? AppColors.sun : null,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 2),
-                  child: Opacity(opacity: locked ? .45 : 1, child: guide),
-                ),
+        child: DesignArt.enabled
+            ? _artPlace(p, locked)
+            : Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned.fill(
+                    child: ToyDisc(
+                      color: locked ? AppColors.mist : AppColors.paper,
+                      edgeColor: locked ? AppColors.mistDeep : p.guide.color,
+                      ring: _justUnlocked ? AppColors.sun : null,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 2),
+                        child: Opacity(opacity: locked ? .45 : 1, child: guide),
+                      ),
+                    ),
+                  ),
+                  // Pictogramme du module, en bas a gauche.
+                  Positioned(
+                    left: -4,
+                    bottom: -4,
+                    child: _IconTile(icon: p.icon, color: p.guide.color),
+                  ),
+                  if (locked)
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: PadlockBadge(
+                        key: Key('locked-${p.name}'),
+                        size: 44,
+                      ),
+                    )
+                  else if (!widget.premiumOwned)
+                    const Positioned(
+                      right: -4,
+                      top: -4,
+                      child: CrownBadge(size: 40),
+                    ),
+                ],
               ),
-            ),
-            // Pictogramme du module, en bas a gauche.
-            Positioned(
-              left: -4,
-              bottom: -4,
-              child: _IconTile(icon: p.icon, color: p.guide.color),
-            ),
-            if (locked)
-              const Positioned(
-                right: -4,
-                top: -4,
-                child: PadlockBadge(size: 44),
-              )
-            else if (!widget.premiumOwned)
-              const Positioned(right: -4, top: -4, child: CrownBadge(size: 40)),
-          ],
-        ),
       ),
     );
   }
+
+  /// Lieu illustre (assets de travail de Margaux) : le cadenas est deja
+  /// dessine sur la version verrouillee ; l'anneau soleil "vient d'etre
+  /// debloque" et la medaille du pass restent dessines par l'appli.
+  Widget _artPlace(IslandPlace p, bool locked) => Stack(
+    clipBehavior: Clip.none,
+    children: [
+      if (_justUnlocked)
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.sun, width: AppSizes.sunRing),
+            ),
+          ),
+        ),
+      Positioned.fill(
+        child: Image.asset(
+          DesignArt.place(p.artId, locked: locked),
+          key: locked ? Key('locked-${p.name}') : null,
+          fit: BoxFit.contain,
+          alignment: Alignment.bottomCenter,
+        ),
+      ),
+      // Pictogramme du module, en bas a gauche.
+      Positioned(
+        left: -4,
+        bottom: -4,
+        child: Image.asset(DesignArt.icon(p.iconArt), width: 48, height: 48),
+      ),
+      if (!locked && !widget.premiumOwned)
+        const Positioned(right: -4, top: -4, child: CrownBadge(size: 40)),
+    ],
+  );
 }
 
 class _IconTile extends StatelessWidget {

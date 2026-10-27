@@ -1,0 +1,1223 @@
+{
+  "project": "Lil C Monsters (SeaMonsters)",
+  "version": "assets v1, working draft, 27 Oct 2026",
+  "status": "draft for art-director review (Margaux Vérany), not final art",
+  "flutter_asset_root": "assets/images/",
+  "density_folders": [
+    "(1x, no folder)",
+    "2.0x/",
+    "3.0x/"
+  ],
+  "map": {
+    "frame_dp": [
+      812,
+      375
+    ],
+    "mood": "morning lagoon",
+    "opaque": true,
+    "variants": [
+      {
+        "name": "map_island_morning.png",
+        "dp": [
+          812,
+          375
+        ],
+        "intended_screen": "Map hub (home screen), landscape, BoxFit.cover",
+        "files": {
+          "1x": {
+            "file": "map/map_island_morning.png",
+            "px": [
+              812,
+              375
+            ]
+          },
+          "2x": {
+            "file": "map/2.0x/map_island_morning.png",
+            "px": [
+              1624,
+              750
+            ]
+          },
+          "3x": {
+            "file": "map/3.0x/map_island_morning.png",
+            "px": [
+              2436,
+              1125
+            ]
+          }
+        }
+      },
+      {
+        "name": "map_island_morning_safe16x9.png",
+        "dp": [
+          667,
+          375
+        ],
+        "intended_screen": "Map hub on 16:9 phones: centred 667x375 dp crop of the same frame (every place is inside it)",
+        "files": {
+          "1x": {
+            "file": "map/map_island_morning_safe16x9.png",
+            "px": [
+              667,
+              375
+            ]
+          },
+          "2x": {
+            "file": "map/2.0x/map_island_morning_safe16x9.png",
+            "px": [
+              1334,
+              750
+            ]
+          },
+          "3x": {
+            "file": "map/3.0x/map_island_morning_safe16x9.png",
+            "px": [
+              2001,
+              1125
+            ]
+          }
+        }
+      }
+    ],
+    "source_svg": "_work/pipeline/map_island.svg (in design/)",
+    "ui_reserved_dp": {
+      "top_right_sound_and_parent_gate": [
+        690,
+        0,
+        812,
+        100
+      ]
+    },
+    "spots": {
+      "cave": {
+        "center_dp": [
+          165,
+          112
+        ],
+        "align": [
+          -0.5936,
+          -0.4027
+        ],
+        "fraction": [
+          0.2032,
+          0.2987
+        ],
+        "landmark_box_dp": [
+          140,
+          140
+        ],
+        "hit_area": "circle, 130 dp diameter, centred on center_dp"
+      },
+      "forest": {
+        "center_dp": [
+          328,
+          150
+        ],
+        "align": [
+          -0.1921,
+          -0.2
+        ],
+        "fraction": [
+          0.4039,
+          0.4
+        ],
+        "landmark_box_dp": [
+          140,
+          140
+        ],
+        "hit_area": "circle, 130 dp diameter, centred on center_dp"
+      },
+      "lighthouse": {
+        "center_dp": [
+          486,
+          100
+        ],
+        "align": [
+          0.197,
+          -0.4667
+        ],
+        "fraction": [
+          0.5985,
+          0.2667
+        ],
+        "landmark_box_dp": [
+          140,
+          140
+        ],
+        "hit_area": "circle, 130 dp diameter, centred on center_dp"
+      },
+      "beach": {
+        "center_dp": [
+          150,
+          272
+        ],
+        "align": [
+          -0.6305,
+          0.4507
+        ],
+        "fraction": [
+          0.1847,
+          0.7253
+        ],
+        "landmark_box_dp": [
+          140,
+          140
+        ],
+        "hit_area": "circle, 130 dp diameter, centred on center_dp"
+      },
+      "library": {
+        "center_dp": [
+          318,
+          290
+        ],
+        "align": [
+          -0.2167,
+          0.5467
+        ],
+        "fraction": [
+          0.3916,
+          0.7733
+        ],
+        "landmark_box_dp": [
+          140,
+          140
+        ],
+        "hit_area": "circle, 130 dp diameter, centred on center_dp"
+      },
+      "shadow": {
+        "center_dp": [
+          610,
+          176
+        ],
+        "align": [
+          0.5025,
+          -0.0613
+        ],
+        "fraction": [
+          0.7512,
+          0.4693
+        ],
+        "landmark_box_dp": [
+          140,
+          140
+        ],
+        "hit_area": "circle, 130 dp diameter, centred on center_dp"
+      },
+      "islets": {
+        "center_dp": [
+          660,
+          298
+        ],
+        "align": [
+          0.6256,
+          0.5893
+        ],
+        "fraction": [
+          0.8128,
+          0.7947
+        ],
+        "landmark_box_dp": [
+          140,
+          140
+        ],
+        "hit_area": "circle, 130 dp diameter, centred on center_dp"
+      }
+    },
+    "guide_spot": {
+      "who": "Fuzzle",
+      "foot_center_dp": [
+        480,
+        346
+      ],
+      "note": "empty sand pad, no landmark"
+    }
+  },
+  "places": [
+    {
+      "id": "cave",
+      "state": "unlocked",
+      "name": "place_cave_unlocked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Cave · colouring (guide Dottie)",
+      "notes": "full colour; \"new\" sun ring is drawn by the app, not baked",
+      "files": {
+        "1x": {
+          "file": "places/place_cave_unlocked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_cave_unlocked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_cave_unlocked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    },
+    {
+      "id": "cave",
+      "state": "locked",
+      "name": "place_cave_locked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Cave · colouring (guide Dottie)",
+      "notes": "locked = mist ramp + plum padlock badge baked top-right (56 dp at 140 dp)",
+      "files": {
+        "1x": {
+          "file": "places/place_cave_locked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_cave_locked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_cave_locked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    },
+    {
+      "id": "forest",
+      "state": "unlocked",
+      "name": "place_forest_unlocked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Forest · monster hunt (guide Zib)",
+      "notes": "full colour; \"new\" sun ring is drawn by the app, not baked",
+      "files": {
+        "1x": {
+          "file": "places/place_forest_unlocked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_forest_unlocked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_forest_unlocked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    },
+    {
+      "id": "forest",
+      "state": "locked",
+      "name": "place_forest_locked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Forest · monster hunt (guide Zib)",
+      "notes": "locked = mist ramp + plum padlock badge baked top-right (56 dp at 140 dp)",
+      "files": {
+        "1x": {
+          "file": "places/place_forest_locked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_forest_locked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_forest_locked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    },
+    {
+      "id": "lighthouse",
+      "state": "unlocked",
+      "name": "place_lighthouse_unlocked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Lighthouse · YouTube, behind parental gate",
+      "notes": "full colour; \"new\" sun ring is drawn by the app, not baked",
+      "files": {
+        "1x": {
+          "file": "places/place_lighthouse_unlocked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_lighthouse_unlocked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_lighthouse_unlocked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    },
+    {
+      "id": "lighthouse",
+      "state": "locked",
+      "name": "place_lighthouse_locked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Lighthouse · YouTube, behind parental gate",
+      "notes": "locked = mist ramp + plum padlock badge baked top-right (56 dp at 140 dp)",
+      "files": {
+        "1x": {
+          "file": "places/place_lighthouse_locked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_lighthouse_locked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_lighthouse_locked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    },
+    {
+      "id": "beach",
+      "state": "unlocked",
+      "name": "place_beach_unlocked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Beach · sound sandbox (guide Pip)",
+      "notes": "full colour; \"new\" sun ring is drawn by the app, not baked",
+      "files": {
+        "1x": {
+          "file": "places/place_beach_unlocked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_beach_unlocked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_beach_unlocked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    },
+    {
+      "id": "beach",
+      "state": "locked",
+      "name": "place_beach_locked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Beach · sound sandbox (guide Pip)",
+      "notes": "locked = mist ramp + plum padlock badge baked top-right (56 dp at 140 dp)",
+      "files": {
+        "1x": {
+          "file": "places/place_beach_locked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_beach_locked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_beach_locked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    },
+    {
+      "id": "library",
+      "state": "unlocked",
+      "name": "place_library_unlocked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Library · animated audiobooks",
+      "notes": "full colour; \"new\" sun ring is drawn by the app, not baked",
+      "files": {
+        "1x": {
+          "file": "places/place_library_unlocked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_library_unlocked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_library_unlocked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    },
+    {
+      "id": "library",
+      "state": "locked",
+      "name": "place_library_locked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Library · animated audiobooks",
+      "notes": "locked = mist ramp + plum padlock badge baked top-right (56 dp at 140 dp)",
+      "files": {
+        "1x": {
+          "file": "places/place_library_locked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_library_locked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_library_locked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    },
+    {
+      "id": "shadow",
+      "state": "unlocked",
+      "name": "place_shadow_unlocked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Shadow game (guide Bitsy)",
+      "notes": "full colour; \"new\" sun ring is drawn by the app, not baked",
+      "files": {
+        "1x": {
+          "file": "places/place_shadow_unlocked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_shadow_unlocked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_shadow_unlocked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    },
+    {
+      "id": "shadow",
+      "state": "locked",
+      "name": "place_shadow_locked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Shadow game (guide Bitsy)",
+      "notes": "locked = mist ramp + plum padlock badge baked top-right (56 dp at 140 dp)",
+      "files": {
+        "1x": {
+          "file": "places/place_shadow_locked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_shadow_locked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_shadow_locked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    },
+    {
+      "id": "islets",
+      "state": "unlocked",
+      "name": "place_islets_unlocked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Islets puzzle (guide Fuzzle)",
+      "notes": "full colour; \"new\" sun ring is drawn by the app, not baked",
+      "files": {
+        "1x": {
+          "file": "places/place_islets_unlocked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_islets_unlocked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_islets_unlocked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    },
+    {
+      "id": "islets",
+      "state": "locked",
+      "name": "place_islets_locked.png",
+      "dp": [
+        140,
+        140
+      ],
+      "hit_area_dp": "120 to 140 (130 used in the layout)",
+      "intended_screen": "Map hub: Islets puzzle (guide Fuzzle)",
+      "notes": "locked = mist ramp + plum padlock badge baked top-right (56 dp at 140 dp)",
+      "files": {
+        "1x": {
+          "file": "places/place_islets_locked.png",
+          "px": [
+            140,
+            140
+          ]
+        },
+        "2x": {
+          "file": "places/2.0x/place_islets_locked.png",
+          "px": [
+            280,
+            280
+          ]
+        },
+        "3x": {
+          "file": "places/3.0x/place_islets_locked.png",
+          "px": [
+            420,
+            420
+          ]
+        }
+      }
+    }
+  ],
+  "icons": [
+    {
+      "id": "beach_shell",
+      "state": "default",
+      "name": "icon_beach_shell.png",
+      "dp": [
+        96,
+        96
+      ],
+      "display_range_dp": "40 to 96",
+      "intended_screen": "Beach / sound sandbox place badge (replaces music-note glyph)",
+      "svg": "icons/svg/icon_beach_shell.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_beach_shell.png",
+          "px": [
+            96,
+            96
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_beach_shell.png",
+          "px": [
+            192,
+            192
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_beach_shell.png",
+          "px": [
+            288,
+            288
+          ]
+        }
+      }
+    },
+    {
+      "id": "cave_palette",
+      "state": "default",
+      "name": "icon_cave_palette.png",
+      "dp": [
+        96,
+        96
+      ],
+      "display_range_dp": "40 to 96",
+      "intended_screen": "Cave / colouring place badge (replaces palette glyph)",
+      "svg": "icons/svg/icon_cave_palette.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_cave_palette.png",
+          "px": [
+            96,
+            96
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_cave_palette.png",
+          "px": [
+            192,
+            192
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_cave_palette.png",
+          "px": [
+            288,
+            288
+          ]
+        }
+      }
+    },
+    {
+      "id": "forest_magnifier",
+      "state": "default",
+      "name": "icon_forest_magnifier.png",
+      "dp": [
+        96,
+        96
+      ],
+      "display_range_dp": "40 to 96",
+      "intended_screen": "Forest / monster hunt place badge (replaces magnifier glyph)",
+      "svg": "icons/svg/icon_forest_magnifier.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_forest_magnifier.png",
+          "px": [
+            96,
+            96
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_forest_magnifier.png",
+          "px": [
+            192,
+            192
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_forest_magnifier.png",
+          "px": [
+            288,
+            288
+          ]
+        }
+      }
+    },
+    {
+      "id": "library_book",
+      "state": "default",
+      "name": "icon_library_book.png",
+      "dp": [
+        96,
+        96
+      ],
+      "display_range_dp": "40 to 96",
+      "intended_screen": "Library / audiobooks place badge (replaces book glyph)",
+      "svg": "icons/svg/icon_library_book.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_library_book.png",
+          "px": [
+            96,
+            96
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_library_book.png",
+          "px": [
+            192,
+            192
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_library_book.png",
+          "px": [
+            288,
+            288
+          ]
+        }
+      }
+    },
+    {
+      "id": "lighthouse_play",
+      "state": "default",
+      "name": "icon_lighthouse_play.png",
+      "dp": [
+        96,
+        96
+      ],
+      "display_range_dp": "40 to 96",
+      "intended_screen": "Lighthouse / YouTube place badge (replaces play glyph)",
+      "svg": "icons/svg/icon_lighthouse_play.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_lighthouse_play.png",
+          "px": [
+            96,
+            96
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_lighthouse_play.png",
+          "px": [
+            192,
+            192
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_lighthouse_play.png",
+          "px": [
+            288,
+            288
+          ]
+        }
+      }
+    },
+    {
+      "id": "islets_puzzle",
+      "state": "default",
+      "name": "icon_islets_puzzle.png",
+      "dp": [
+        96,
+        96
+      ],
+      "display_range_dp": "40 to 96",
+      "intended_screen": "Islets puzzle place badge (replaces puzzle glyph)",
+      "svg": "icons/svg/icon_islets_puzzle.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_islets_puzzle.png",
+          "px": [
+            96,
+            96
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_islets_puzzle.png",
+          "px": [
+            192,
+            192
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_islets_puzzle.png",
+          "px": [
+            288,
+            288
+          ]
+        }
+      }
+    },
+    {
+      "id": "shadow_lantern",
+      "state": "default",
+      "name": "icon_shadow_lantern.png",
+      "dp": [
+        96,
+        96
+      ],
+      "display_range_dp": "40 to 96",
+      "intended_screen": "Shadow game place badge (replaces lantern glyph)",
+      "svg": "icons/svg/icon_shadow_lantern.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_shadow_lantern.png",
+          "px": [
+            96,
+            96
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_shadow_lantern.png",
+          "px": [
+            192,
+            192
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_shadow_lantern.png",
+          "px": [
+            288,
+            288
+          ]
+        }
+      }
+    },
+    {
+      "id": "sound_on",
+      "state": "on",
+      "name": "icon_sound_on.png",
+      "dp": [
+        72,
+        72
+      ],
+      "display_range_dp": "43 to 72",
+      "intended_screen": "Map top-right sound toggle, on",
+      "svg": "icons/svg/icon_sound_on.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_sound_on.png",
+          "px": [
+            72,
+            72
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_sound_on.png",
+          "px": [
+            144,
+            144
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_sound_on.png",
+          "px": [
+            216,
+            216
+          ]
+        }
+      }
+    },
+    {
+      "id": "sound_off",
+      "state": "off",
+      "name": "icon_sound_off.png",
+      "dp": [
+        72,
+        72
+      ],
+      "display_range_dp": "43 to 72",
+      "intended_screen": "Map top-right sound toggle, off",
+      "svg": "icons/svg/icon_sound_off.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_sound_off.png",
+          "px": [
+            72,
+            72
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_sound_off.png",
+          "px": [
+            144,
+            144
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_sound_off.png",
+          "px": [
+            216,
+            216
+          ]
+        }
+      }
+    },
+    {
+      "id": "parental_gate",
+      "state": "default",
+      "name": "icon_parental_gate.png",
+      "dp": [
+        44,
+        44
+      ],
+      "display_range_dp": "44",
+      "intended_screen": "Parental gate entry, map top-right only, outside the play area: flat mauve-grey gear, no animation, no sound",
+      "colour": "#5A536C fill, #4A4459 2-unit outline",
+      "contrast": "3.2:1 on lagoon #3FC1B0, 6.7:1 on cream #FFF6E5",
+      "touch_target_dp": ">= 44",
+      "motion": "none (no wobble, no sound, no tap invitation)",
+      "svg": "icons/svg/icon_parental_gate.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_parental_gate.png",
+          "px": [
+            44,
+            44
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_parental_gate.png",
+          "px": [
+            88,
+            88
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_parental_gate.png",
+          "px": [
+            132,
+            132
+          ]
+        }
+      }
+    },
+    {
+      "id": "back",
+      "state": "default",
+      "name": "icon_back.png",
+      "dp": [
+        72,
+        72
+      ],
+      "display_range_dp": "43 to 72",
+      "intended_screen": "Back, top-left (inside a module sub-screen)",
+      "svg": "icons/svg/icon_back.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_back.png",
+          "px": [
+            72,
+            72
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_back.png",
+          "px": [
+            144,
+            144
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_back.png",
+          "px": [
+            216,
+            216
+          ]
+        }
+      }
+    },
+    {
+      "id": "home",
+      "state": "default",
+      "name": "icon_home.png",
+      "dp": [
+        72,
+        72
+      ],
+      "display_range_dp": "43 to 72",
+      "intended_screen": "Home / back to map, top-left on every place screen",
+      "svg": "icons/svg/icon_home.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_home.png",
+          "px": [
+            72,
+            72
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_home.png",
+          "px": [
+            144,
+            144
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_home.png",
+          "px": [
+            216,
+            216
+          ]
+        }
+      }
+    },
+    {
+      "id": "padlock",
+      "state": "default",
+      "name": "icon_padlock.png",
+      "dp": [
+        48,
+        48
+      ],
+      "display_range_dp": "28 to 48",
+      "intended_screen": "Padlock for locked buttons and cards",
+      "svg": "icons/svg/icon_padlock.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_padlock.png",
+          "px": [
+            48,
+            48
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_padlock.png",
+          "px": [
+            96,
+            96
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_padlock.png",
+          "px": [
+            144,
+            144
+          ]
+        }
+      }
+    },
+    {
+      "id": "padlock_badge",
+      "state": "default",
+      "name": "icon_padlock_badge.png",
+      "dp": [
+        48,
+        48
+      ],
+      "display_range_dp": "28 to 48",
+      "intended_screen": "Round padlock badge overlaid on locked landmarks / tiles",
+      "svg": "icons/svg/icon_padlock_badge.svg",
+      "files": {
+        "1x": {
+          "file": "icons/icon_padlock_badge.png",
+          "px": [
+            48,
+            48
+          ]
+        },
+        "2x": {
+          "file": "icons/2.0x/icon_padlock_badge.png",
+          "px": [
+            96,
+            96
+          ]
+        },
+        "3x": {
+          "file": "icons/3.0x/icon_padlock_badge.png",
+          "px": [
+            144,
+            144
+          ]
+        }
+      }
+    }
+  ]
+}

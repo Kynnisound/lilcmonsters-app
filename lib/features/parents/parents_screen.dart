@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/audio/audio_providers.dart';
+import '../../core/audio/sound_effect.dart';
 import '../../core/content/scenes.dart';
 import '../../core/entitlements/entitlement_providers.dart';
 import '../../core/entitlements/entitlement_service.dart';
@@ -27,6 +28,7 @@ class ParentsScreen extends ConsumerWidget {
     final telemetry = ref.watch(telemetryProvider);
 
     void leave() {
+      ref.read(audioServiceProvider).play(SoundEffect.uiBack);
       ref.read(parentalSessionProvider.notifier).revoke();
       context.go(Routes.map);
     }

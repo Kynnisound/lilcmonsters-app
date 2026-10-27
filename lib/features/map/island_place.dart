@@ -31,6 +31,8 @@ enum IslandPlace {
     Icons.palette_rounded,
     PlaceAccess.premium,
     feature: PremiumFeature.coloring,
+    artId: 'cave',
+    iconArt: 'cave_palette',
   ),
   beach(
     Routes.beach,
@@ -39,6 +41,8 @@ enum IslandPlace {
     Monster.pip,
     Icons.music_note_rounded,
     PlaceAccess.free,
+    artId: 'beach',
+    iconArt: 'beach_shell',
   ),
   forest(
     Routes.forest,
@@ -48,6 +52,8 @@ enum IslandPlace {
     Icons.search_rounded,
     PlaceAccess.premium,
     feature: PremiumFeature.fullMonsterHunt,
+    artId: 'forest',
+    iconArt: 'forest_magnifier',
   ),
   library(
     Routes.library,
@@ -57,6 +63,8 @@ enum IslandPlace {
     Icons.auto_stories_rounded,
     PlaceAccess.premium,
     feature: PremiumFeature.audioBooks,
+    artId: 'library',
+    iconArt: 'library_book',
   ),
   lighthouse(
     Routes.lighthouse,
@@ -65,6 +73,8 @@ enum IslandPlace {
     Monster.bitsy,
     Icons.play_arrow_rounded,
     PlaceAccess.parental,
+    artId: 'lighthouse',
+    iconArt: 'lighthouse_play',
   ),
   shadows(
     Routes.shadows,
@@ -73,6 +83,8 @@ enum IslandPlace {
     Monster.bitsy,
     Icons.flashlight_on_rounded,
     PlaceAccess.unlockable,
+    artId: 'shadow',
+    iconArt: 'shadow_lantern',
   ),
   puzzle(
     Routes.puzzle,
@@ -81,6 +93,8 @@ enum IslandPlace {
     Monster.fuzzle,
     Icons.extension_rounded,
     PlaceAccess.unlockable,
+    artId: 'islets',
+    iconArt: 'islets_puzzle',
   );
 
   const IslandPlace(
@@ -91,6 +105,8 @@ enum IslandPlace {
     this.icon,
     this.access, {
     this.feature,
+    required this.artId,
+    required this.iconArt,
   });
 
   final String route;
@@ -100,4 +116,8 @@ enum IslandPlace {
   final IconData icon;
   final PlaceAccess access;
   final PremiumFeature? feature;
+
+  /// Identifiants des assets de Margaux (lib/core/content/design_art.dart).
+  final String artId;
+  final String iconArt;
 }

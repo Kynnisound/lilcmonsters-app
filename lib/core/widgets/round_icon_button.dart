@@ -16,6 +16,7 @@ class RoundIconButton extends StatelessWidget {
     this.edgeColor = AppColors.coralDeep,
     this.iconColor = AppColors.plum,
     this.size = AppSizes.homeButton,
+    this.iconAsset,
   });
 
   /// Bouton principal 96 dp (Jouer, Aller, Suivant).
@@ -24,6 +25,7 @@ class RoundIconButton extends StatelessWidget {
     required this.icon,
     required this.semanticLabel,
     required this.onTap,
+    this.iconAsset,
   }) : color = AppColors.coral,
        edgeColor = AppColors.coralDeep,
        iconColor = AppColors.plum,
@@ -37,6 +39,9 @@ class RoundIconButton extends StatelessWidget {
   final Color iconColor;
   final double size;
 
+  /// Icone dessinee (asset) a la place du glyphe [icon], si fournie.
+  final String? iconAsset;
+
   @override
   Widget build(BuildContext context) {
     return BouncyButton(
@@ -46,7 +51,9 @@ class RoundIconButton extends StatelessWidget {
       child: ToyDisc(
         color: color,
         edgeColor: edgeColor,
-        child: Icon(icon, color: iconColor, size: size * 0.48),
+        child: iconAsset != null
+            ? Image.asset(iconAsset!, width: size * .61, height: size * .61)
+            : Icon(icon, color: iconColor, size: size * 0.48),
       ),
     );
   }

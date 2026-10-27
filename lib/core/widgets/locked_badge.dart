@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../content/design_art.dart';
 import '../theme/app_tokens.dart';
 
 /// Cadenas (ilot ou contenu non debloque).
@@ -8,12 +9,15 @@ class PadlockBadge extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) => _Badge(
-    size: size,
-    color: AppColors.mist,
-    icon: Icons.lock_rounded,
-    iconColor: AppColors.plum,
-  );
+  Widget build(BuildContext context) => DesignArt.enabled
+      // Cadenas dessine par Margaux (assets de travail v1).
+      ? Image.asset(DesignArt.padlockBadge, width: size, height: size)
+      : _Badge(
+          size: size,
+          color: AppColors.mist,
+          icon: Icons.lock_rounded,
+          iconColor: AppColors.plum,
+        );
 }
 
 /// Couronne (contenu du pass payant).

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/audio/audio_providers.dart';
+import '../../core/audio/audio_service.dart';
 import '../../core/audio/sound_effect.dart';
 import '../../core/content/game_random.dart';
 import '../../core/content/monsters.dart';
@@ -34,23 +35,37 @@ class _ShadowsScreenState extends ConsumerState<ShadowsScreen> {
   int _celebrations = 0;
   Timer? _next;
 
+  /// Ombres trouvees depuis l'ouverture : toutes les [roundsPerLevel], un
+  /// petit air de fin de niveau remplace le son de reussite.
+  int _found = 0;
+  static const roundsPerLevel = 3;
+  late final AudioService _audio = ref.read(audioServiceProvider);
+
   @override
   void initState() {
     super.initState();
     _round = ShadowRound.random(ref.read(gameRandomProvider));
+    // La lanterne de Bitsy s'allume.
+    _audio.play(SoundEffect.lanternOn);
   }
 
   @override
   void dispose() {
     _next?.cancel();
+    _audio.play(SoundEffect.lanternOff);
     super.dispose();
   }
 
   void _choose(Monster m) {
     if (_solved != null) return;
-    final audio = ref.read(audioServiceProvider);
+    final audio = _audio;
     if (_round.isCorrect(m)) {
-      audio.play(SoundEffect.success);
+      _found++;
+      audio.play(
+        _found % roundsPerLevel == 0
+            ? SoundEffect.shadowLevelComplete
+            : SoundEffect.shadowFound,
+      );
       ref.read(progressProvider.notifier).shadowFound();
       setState(() {
         _solved = m;
@@ -58,6 +73,7 @@ class _ShadowsScreenState extends ConsumerState<ShadowsScreen> {
       });
       _next = Timer(AppMotion.t4, () {
         if (!mounted) return;
+        audio.play(SoundEffect.lanternOn);
         setState(() {
           _round = ShadowRound.random(
             ref.read(gameRandomProvider),
@@ -67,7 +83,7 @@ class _ShadowsScreenState extends ConsumerState<ShadowsScreen> {
         });
       });
     } else {
-      audio.play(SoundEffect.pop);
+      audio.play(SoundEffect.shadowWrong);
       setState(() => _wobbles[m] = (_wobbles[m] ?? 0) + 1);
     }
   }

@@ -26,7 +26,7 @@ class PremiumLock extends ConsumerWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () async {
-          ref.read(audioServiceProvider).play(SoundEffect.boing);
+          ref.read(audioServiceProvider).play(SoundEffect.placeLocked);
           if (await requestParentalAccess(context, ref) && context.mounted) {
             context.push(Routes.parents);
           }

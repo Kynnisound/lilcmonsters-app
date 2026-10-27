@@ -125,7 +125,14 @@ Reference points: Apple HIG minimum is 44 pt and Material is 48 dp, both for adu
 | Map places (7 places on the island map hub) | **120 to 140 dp** hit area (art can be bigger) | well apart, no overlaps |
 | Colour dots (cave) | 72 dp | 16 dp |
 | Back / home | 72 dp, always top-left, same icon everywhere | |
-| Parental gate entry | deliberately small (44 dp) or hold-to-open | top-right |
+| Parental gate entry | touch target **at least 44 pt** (44 dp); deliberately unremarkable (see the parental-gate rule below) | top-right, outside the play area |
+
+**Parental-gate rule** (added 27 Oct 2026 after QA review)
+- Touch target at least **44 pt** (44 dp, `AppSizes.parentEntry`). The icon is a flat monochrome mauve-grey gear (`#5A536C`, at least 3:1 on lagoon and cream), thin outline, no gloss, no relief, no shadow, no people, and clearly distinct from the plum padlock in shape, colour and weight. Asset: `design/assets/icons/icon_parental_gate.png`.
+- **No wobble, no sound, no tap-invitation animation** (no breathing, pulse, glow or guide pointing at it). It never gets the toy-button anatomy below.
+- It always stays at the **top right, outside the play area**, never next to a place, a reward or the guide.
+- The gear is a parent-only signal. It is the single exception to the "no gear for kids" rule in §5, precisely because it must not look like a game.
+- The parental challenge behind it (and before any external link, YouTube, purchase or settings change) must meet **Apple App Store Review Guidelines 1.3 (Kids Category) and 5.1.4 (Kids privacy)** and the **Google Play Families policy** (including the Designed for Families requirements). It must be something a pre-reader cannot pass by chance or by imitation; the exact challenge is to be validated with QA.
 
 **Big button anatomy (board §4):** coral circle, 4 dp plum outline, 12 dp solid `coralDeep` bottom edge (toy / sticker look, same language as the site's buttons), cream play triangle with plum outline, soft highlight top-left.
 - **Idle**: as above, very slow breathing (scale 1.00 to 1.03, 1.6 s) only on the single next-step button.
@@ -137,7 +144,7 @@ Reference points: Apple HIG minimum is 44 pt and Material is 48 dp, both for adu
 ## 5. Icon style
 
 - Chunky filled objects (shell, crayon, magnifier, book, lighthouse, puzzle piece), 2 fills + 4 dp plum outline, inside a rounded tile (radius ~33%), matching the painted storybook look.
-- No thin strokes, no letters or numbers inside icons, no abstract UI glyphs (no hamburger, no gear for kids).
+- No thin strokes, no letters or numbers inside icons, no abstract UI glyphs (no hamburger, no gear for kids). Exception: the parent-only gear of the parental gate (§4), which is meant to look dull to children.
 - Every icon has a voice line (the guide names it on first tap).
 - Icon set lives in vector (SVG, then Flutter vector or `flutter_svg`); painted illustration stays raster.
 

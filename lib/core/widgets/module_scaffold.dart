@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../audio/audio_providers.dart';
+import '../audio/sound_effect.dart';
+import '../content/design_art.dart';
 import '../content/monsters.dart';
 import '../l10n/strings.dart';
 import '../router/routes.dart';
@@ -8,15 +12,19 @@ import '../theme/app_tokens.dart';
 import 'round_icon_button.dart';
 
 /// Bouton maison : 72 dp, toujours en haut a gauche, meme icone partout.
-class HomeButton extends StatelessWidget {
+class HomeButton extends ConsumerWidget {
   const HomeButton({super.key});
 
   @override
-  Widget build(BuildContext context) => RoundIconButton(
+  Widget build(BuildContext context, WidgetRef ref) => RoundIconButton(
     key: const Key('home-button'),
     icon: Icons.home_rounded,
+    iconAsset: DesignArt.enabled ? DesignArt.home : null,
     semanticLabel: S.backToMap,
-    onTap: () => context.go(Routes.map),
+    onTap: () {
+      ref.read(audioServiceProvider).play(SoundEffect.uiBack);
+      context.go(Routes.map);
+    },
   );
 }
 

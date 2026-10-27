@@ -26,7 +26,7 @@ Drapeaux de développement (`--dart-define`) :
 | `UNLOCK_ALL_ISLETS=true` | ouvre directement le puzzle d'îlots et le jeu d'ombres |
 | `PARENTAL_GATE=false` | coupe la porte parentale (développement uniquement) |
 
-Les sons provisoires se régénèrent avec `python3 tool/gen_sounds.py` (synthèse maison, libre de droits).
+Les 5 notes des monstres se régénèrent avec `python3 tool/gen_sounds.py` (synthèse maison, libre de droits) ; tous les autres sons sont ceux livrés par Shada (voir Sons et crédits).
 Les illustrations se réimportent depuis le site avec `python3 tool/import_site_images.py` (voir Assets et crédits).
 
 ## Architecture
@@ -42,7 +42,8 @@ lib/
   core/
     theme/                   app_tokens.dart (tous les tokens), app_theme.dart
     router/                  routes.dart, app_router.dart (redirections : îlots fermés, espace parents)
-    audio/                   AudioService (interface), AudioplayersAudioService, RecordingAudioService (tests)
+    audio/                   AudioService (interface), AudioplayersAudioService, RecordingAudioService (tests),
+                             SoundEffect / Ambience (chemins, choix .m4a ou .ogg), AmbienceScope (boucle d'un lieu)
     entitlements/            EntitlementService (interface), FakeEntitlementService, PremiumFeature
     backend/                 AuthService, StorageService, RemoteConfigService + implémentations locales
     telemetry/               TelemetryService (interface) + NoopTelemetryService
@@ -64,7 +65,9 @@ lib/
     parents/                 espace parents (pass, restauration, son, confidentialité)
 assets/
   images/                    illustrations du site lilcmonsters.com (voir Assets et crédits)
-  sounds/                    sons générés (placeholders)
+                             + map/, places/, icons/ : assets de travail de Margaux (voir plus bas)
+  audio/                     sons de Shada (.ogg + .m4a, CC0 ou domaine public) et SOUNDS_MANIFEST.md
+  sounds/                    5 notes des monstres générées (tool/gen_sounds.py)
   fonts/                     Luckiest Guy, Baloo 2 + licences
 test/                        tests logiques, tests d'écrans, tests de mise en page sur 3 tailles
 screenshots/                 captures du build web
@@ -135,7 +138,43 @@ Usage des illustrations du site lilcmonsters.com dans l'appli validé par David 
 - Le catalogue de la bibliothèque (`lib/features/library/books.dart`) reprend titres, tomes, statuts et couleurs de `site/data/books.json` ; un petit sablier signale les livres pas encore parus.
 - Les chemins des décors sont centralisés dans `lib/core/content/scenes.dart` ; `ModuleScaffold` accepte un `backdrop` et un `veil` (opacité du dégradé posé dessus).
 - Restent vectoriels : l'île de la carte et les buissons de la forêt (le site n'a pas d'illustration équivalente).
-- Polices : voir `assets/fonts/README.md`. Sons : synthèse maison (`tool/gen_sounds.py`).
+- Polices : voir `assets/fonts/README.md`. Sons : voir Sons et crédits.
+
+## Sons et crédits
+
+Sons de la phase 1 livrés par Shada le 27/10/2026 dans `assets/audio/<catégorie>/` (beach, map, ui, puzzle, shadow, common). Détail complet (source, auteur, licence, durée, sonie, retouches) : **`assets/audio/SOUNDS_MANIFEST.md`**. Tous sont sous CC0 1.0 ou dans le domaine public : usage commercial autorisé, crédit facultatif. Ces fichiers ne doivent pas être retouchés dans l'appli ; une nouvelle coupe se refait chez Shada.
+
+Crédit proposé pour l'écran de crédits : « Sons : Kenney.nl, contributeurs OpenGameArt (rubberduck, Peludo, Thimras), Wikimedia Commons (Jarrod stanley, avphillips) ».
+
+Format : chaque son existe en `.m4a` (AAC) et `.ogg` (Vorbis). `audioFormatFor` (`lib/core/audio/sound_effect.dart`) choisit `.m4a` sur iOS et macOS, `.ogg` ailleurs. Sur le web, Flutter déduit la plateforme du navigateur : iPhone, iPad et Mac (donc Safari) reçoivent le `.m4a`, Android, Windows et Linux le `.ogg`.
+
+| Usage | Son |
+|---|---|
+| Carte : ambiance en boucle | `map/map_ambience_loop` |
+| Carte : lieu ouvert / lieu verrouillé ou contenu du pass | `ui/ui_place_unlocked` / `ui/ui_place_locked` |
+| Bouton maison, fermeture de l'espace parents | `ui/ui_back` |
+| Boutons simples (son, phare, rejouer, taille du puzzle, couleur, buisson vide) | `ui/ui_tap` |
+| Plage : ambiance en boucle | `beach/beach_ambience_loop` |
+| Plage : vague, mouette, coquillage, bulles, sable | `beach/beach_wave_splash`, `beach_seagull`, `beach_shell`, `beach_bubbles`, `beach_sand` |
+| Puzzle : prise d'une pièce, pièce posée, puzzle fini, mauvaise case | `puzzle/puzzle_piece_pickup`, `puzzle_piece_snap`, `puzzle_complete`, `ui/ui_place_locked` |
+| Ombres : lanterne allumée (entrée, nouvelle manche) / éteinte (sortie) | `shadow/shadow_lantern_on` / `shadow_lantern_off` |
+| Ombres : bonne ombre, toutes les 3 bonnes ombres, mauvaise ombre | `shadow/shadow_found`, `shadow_level_complete`, `shadow_wrong` |
+| Forêt : chasse terminée ; lecteur de livre (piste provisoire) | `common/success_badge` |
+| Grotte : ouverture d'une page | `ui/ui_place_unlocked` |
+| Notes des 5 monstres (plage, forêt, bibliothèque) | `assets/sounds/note_*.wav` (générées, aucun équivalent livré) |
+
+Ambiances : volume 0,55, effets 0,9 (fourchettes du manifeste). `AmbienceScope` lance la boucle à l'ouverture du lieu, l'arrête à la sortie et quand l'appli passe en arrière-plan ; couper le son l'arrête, le rétablir la relance. Boucle en `ReleaseMode.loop` d'audioplayers : boucle native sur Android (`MediaPlayer.setLooping`) et sur le web (`audio.loop`), mais sur iOS et macOS audioplayers revient au début puis relance la lecture à la fin du fichier, ce qui peut laisser un court blanc. Si on l'entend sur appareil, passer à un lecteur sans blanc (par exemple `just_audio` et `LoopingAudioSource`), sans autre dépendance.
+
+## Assets illustrés de Margaux (version de travail)
+
+Livrés par Margaux Vérany le 27/10/2026 dans `design/assets/` (voir son `README.md` et `manifest.json`, non modifiés). **Version de travail, pas encore validée par David.** Copiés tels quels, avec les dossiers `2.0x/` et `3.0x/`, dans `assets/images/map/` (sans le recadrage `safe16x9`, inutile au code), `assets/images/places/` et `assets/images/icons/` (PNG uniquement, pas de SVG ni de `flutter_svg`).
+
+- Tous les chemins, le cadre 812 x 375 dp, les centres des 7 lieux et la place du guide sont dans **`lib/core/content/design_art.dart`**.
+- Retour aux éléments provisoires (île vectorielle, disques des guides, icônes Material) sans toucher au code : `flutter run --dart-define=DESIGN_ART_V1=false` (vérifié : les 25 tests passent dans les deux modes). Retrait définitif : passer `DesignArt.enabled` à `false`, retirer les trois dossiers de `pubspec.yaml` et de `assets/images/`.
+- Carte : décor en `BoxFit.cover`, lieux de 120 à 140 dp centrés sur leur emplacement, Fuzzle debout sur l'emplacement du guide. Version verrouillée : cadenas déjà dessiné ; l'anneau soleil « vient d'être débloqué » et la médaille du pass restent dessinés par l'appli.
+- Icônes remplacées : pictogrammes des 7 lieux, son (marche / arrêt), entrée parents, maison, cadenas des contenus, coquillage de la plage. `icon_back` et `icon_padlock` sont copiées mais pas encore utilisées.
+- Tablette 4:3 : le cadre 812 x 375 est un cadre de téléphone. En `cover`, il couperait la grotte et le puzzle d'îlots ; l'appli réduit donc la carte pour garder la largeur utile (667 dp) et complète en haut et en bas avec le lagon uni. Ça reste lisible, mais on voit des bandes : attendre la version 4:3 de Margaux.
+- Poids : environ 4,8 Mo de PNG (dont 3,2 Mo pour les lieux) ; à convertir en WebP une fois la série validée.
 
 ## Firebase : ce qu'il faudra faire une fois le projet créé par David
 
@@ -153,7 +192,7 @@ Rien n'est branché aujourd'hui : pas de `flutterfire configure`, pas de `fireba
 1. Valider la direction V1 avec Margaux Vérany, puis faire dessiner les éléments encore vectoriels (île de la carte, buissons de la forêt) et des monstres détourés en plus haute définition.
 2. Persister la progression et les réglages (`shared_preferences`).
 3. Coloriage par zones (remplissage) et sauvegarde des dessins.
-4. Voix des guides (consignes parlées), sons définitifs de la marque, réglage de volume plafonné, mode calme.
+4. Voix des guides (consignes parlées), notes des monstres définitives, réglage de volume plafonné, mode calme, écoute des boucles sur iPhone et Android.
 5. Livres audio animés : narration, synchronisation, téléchargement depuis Storage.
 6. Phase 3 : `RevenueCatEntitlementService` derrière `EntitlementService` (un produit « Pass Monstres »), écran d'offre dans l'espace parents uniquement.
 7. Localisation anglaise (ARB) : les livres sont en anglais.
