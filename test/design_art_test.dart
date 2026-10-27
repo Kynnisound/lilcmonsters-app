@@ -7,7 +7,8 @@ import 'package:seamonsters/features/map/island_place.dart';
 void main() {
   test('assets de Margaux references presents (1x, 2.0x, 3.0x)', () {
     final paths = <String>[
-      DesignArt.map,
+      DesignArt.phoneLayout.image,
+      if (DesignArt.tablet43Layout != null) DesignArt.tablet43Layout!.image,
       DesignArt.home,
       DesignArt.soundOn,
       DesignArt.soundOff,
@@ -28,7 +29,11 @@ void main() {
       }
     }
     for (final p in IslandPlace.values) {
-      expect(DesignArt.mapSpots.containsKey(p.artId), isTrue, reason: p.name);
+      expect(
+        DesignArt.phoneLayout.spots.containsKey(p.artId),
+        isTrue,
+        reason: p.name,
+      );
     }
   });
 }

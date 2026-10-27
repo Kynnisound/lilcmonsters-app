@@ -1,4 +1,7 @@
+import 'dart:math';
 import 'dart:ui';
+
+import 'design_map_layouts.g.dart';
 
 /// Assets illustres de Margaux Verany, v1 du 27/10/2026 : VERSION DE TRAVAIL,
 /// non validee par David. Sources : design/assets/ (README.md et
@@ -16,33 +19,37 @@ abstract final class DesignArt {
 
   static const _root = 'assets/images';
 
-  // Carte (manifest.json > map).
-  static const map = '$_root/map/map_island_morning.png';
-
-  /// Cadre de la carte en dp (BoxFit.cover sur telephone).
-  static const mapFrame = Size(812, 375);
-
-  /// Largeur utile (recadrage 16:9 du manifeste, tous les lieux dedans).
-  /// Sur un ecran plus etroit (tablette 4:3), la carte est reduite pour que
-  /// cette largeur tienne, et le lagon complete en haut et en bas.
-  static const mapSafeWidth = 667.0;
+  // Carte : dispositions generees depuis manifest.json
+  // (tool/sync_design_manifest.py -> design_map_layouts.g.dart).
+  static const phoneLayout = designPhoneLayout;
+  static const tablet43Layout = designTablet43Layout;
 
   /// Couleur des bandes de lagon autour du cadre (bord de l'illustration).
   static const mapLagoon = Color(0xFF3FC1B0);
 
-  /// Centre des emplacements des lieux, en dp du cadre 812 x 375.
-  static const mapSpots = <String, Offset>{
-    'cave': Offset(165, 112),
-    'forest': Offset(328, 150),
-    'lighthouse': Offset(486, 100),
-    'beach': Offset(150, 272),
-    'library': Offset(318, 290),
-    'shadow': Offset(610, 176),
-    'islets': Offset(660, 298),
-  };
+  /// Bascule sur la carte tablette quand largeur / hauteur < 1,6 (README
+  /// de Margaux, v1.2), si elle existe ; sinon la carte telephone.
+  static const tabletMaxAspect = 1.6;
+  static MapLayout layoutFor(
+    Size screen, {
+    MapLayout? tablet = tablet43Layout,
+  }) {
+    if (tablet == null || screen.isEmpty) return phoneLayout;
+    return screen.aspectRatio < tabletMaxAspect ? tablet : phoneLayout;
+  }
 
-  /// Pied du guide (Fuzzle) sur la carte, emplacement vide sans lieu.
-  static const guideFoot = Offset(480, 346);
+  /// Lieux : 140 dp a l'echelle 1 de la carte, grandissent avec le decor,
+  /// bornes 120 a 200 dp (cible tactile = boite entiere).
+  static const placeBox = 140.0;
+  static const placeMin = 120.0;
+  static const placeMax = 200.0;
+  static double placeSize(double mapScale) =>
+      (placeBox * mapScale).clamp(placeMin, placeMax);
+
+  /// Zone de tap : cercle de 130/140 de la taille du lieu, centre.
+  static const tapRatio = 130 / 140;
+
+  /// Hauteur du guide (Fuzzle) a l'echelle 1, debout sur son emplacement.
   static const guideHeight = 84.0;
 
   // Lieux : boite 140 dp, cadenas deja dessine sur la version verrouillee.
@@ -60,4 +67,36 @@ abstract final class DesignArt {
   static const padlock = '$_icons/icon_padlock.png';
   static const padlockBadge = '$_icons/icon_padlock_badge.png';
   static const beachShell = '$_icons/icon_beach_shell.png';
+}
+
+/// Disposition d'une carte illustree (cadre en dp, lieux, guide, HUD).
+class MapLayout {
+  const MapLayout({
+    required this.image,
+    required this.frame,
+    required this.spots,
+    required this.hud,
+    this.guideFoot,
+    this.safeWidth,
+  });
+
+  final String image;
+  final Size frame;
+
+  /// Centres des lieux en dp du cadre, par identifiant d'asset.
+  final Map<String, Offset> spots;
+
+  /// Zone reservee au HUD (son, entree parents), en dp du cadre.
+  final Rect hud;
+  final Offset? guideFoot;
+
+  /// Largeur utile qui doit toujours tenir a l'ecran (sinon : cover pur).
+  final double? safeWidth;
+
+  /// Echelle cover, reduite si besoin pour garder [safeWidth] visible.
+  double scaleFor(Size screen) {
+    final cover = max(screen.width / frame.width, screen.height / frame.height);
+    final safe = safeWidth;
+    return safe == null ? cover : min(cover, screen.width / safe);
+  }
 }

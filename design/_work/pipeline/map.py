@@ -4,7 +4,7 @@ P='#3A1752'; LAG='#3FC1B0'; FOAM='#D4F4EE'; SAND='#FFE4BF'; SUN='#FFD60A'; CREAM
 W,H=812,375
 # landmark anchors (centre of the 140 dp landmark box), dp in the 812x375 frame
 SPOTS={'cave':(165,112),'forest':(328,150),'lighthouse':(486,100),'beach':(150,272),
-       'library':(318,290),'shadow':(610,176),'islets':(660,298)}
+       'library':(318,290),'shadow':(610,176),'islets':(662,300)}
 GUIDE=(480,296)   # free sand spot for Fuzzle (guide), no landmark
 PAD_DY=40          # pad centre sits under the landmark base
 

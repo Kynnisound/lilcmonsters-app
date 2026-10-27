@@ -102,22 +102,24 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
           builder: (context, constraints) {
             final pad = MediaQuery.paddingOf(context);
             final size = constraints.biggest;
-            final spot = (size.shortestSide * .3).clamp(
-              AppSizes.mapSpotMin,
-              AppSizes.mapSpotMax,
-            );
+            // Assets de Margaux : carte telephone ou tablette 4:3 (manifeste),
+            // en cover, reduite si besoin pour garder la largeur utile.
+            final layout = DesignArt.layoutFor(size);
+            final frame = layout.frame;
+            final scale = layout.scaleFor(size);
+            // Lieux : grandissent avec le decor (120 a 200 dp) ; mode de
+            // repli : 120 a 140 dp selon l'ecran.
+            final spot = DesignArt.enabled
+                ? DesignArt.placeSize(scale)
+                : (size.shortestSide * .3).clamp(
+                    AppSizes.mapSpotMin,
+                    AppSizes.mapSpotMax,
+                  );
             final area = Rect.fromLTRB(
               pad.left + 8,
               pad.top + 8,
               size.width - pad.right - 8,
               size.height - pad.bottom - 8,
-            );
-            // Assets de Margaux : cadre 812 x 375 dp en BoxFit.cover, reduit
-            // si besoin pour que la largeur utile (667 dp) tienne (tablette).
-            final frame = DesignArt.mapFrame;
-            final scale = min(
-              max(size.width / frame.width, size.height / frame.height),
-              size.width / DesignArt.mapSafeWidth,
             );
             final origin = Offset(
               (size.width - frame.width * scale) / 2,
@@ -125,13 +127,41 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
             );
             Offset onMap(Offset dp) => origin + dp * scale;
             Offset center(IslandPlace p) => DesignArt.enabled
-                ? onMap(DesignArt.mapSpots[p.artId]!)
+                ? onMap(layout.spots[p.artId]!)
                 : Offset(
                     area.left + p.position.dx * area.width,
                     area.top + p.position.dy * area.height,
                   );
             final guideH = (DesignArt.guideHeight * scale).clamp(64.0, 110.0);
-            final foot = onMap(DesignArt.guideFoot);
+            final foot = layout.guideFoot == null
+                ? null
+                : onMap(layout.guideFoot!);
+            // Zone du HUD a l'ecran (boutons de taille fixe en haut a droite) :
+            // un lieu qui la chevaucherait passe dessous.
+            final hudFrame = Rect.fromPoints(
+              onMap(layout.hud.topLeft),
+              onMap(layout.hud.bottomRight),
+            );
+            final hud = Rect.fromLTRB(
+              min(hudFrame.left, size.width - pad.right - _hudWidth),
+              0,
+              size.width,
+              max(hudFrame.bottom, pad.top + 12 + AppSizes.homeButton),
+            );
+            Rect placeRect(IslandPlace p) {
+              final c = center(p);
+              final left = (c.dx - spot / 2).clamp(
+                area.left,
+                area.right - spot,
+              );
+              var top = (c.dy - spot / 2).clamp(area.top, area.bottom - spot);
+              final r = Rect.fromLTWH(left, top, spot, spot);
+              if (DesignArt.enabled && r.overlaps(hud)) {
+                top = min(hud.bottom, area.bottom - spot);
+              }
+              return Rect.fromLTWH(left, top, spot, spot);
+            }
+
             return Stack(
               children: [
                 if (DesignArt.enabled) ...[
@@ -141,20 +171,21 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
                     width: frame.width * scale,
                     height: frame.height * scale,
                     child: ExcludeSemantics(
-                      child: Image.asset(DesignArt.map, fit: BoxFit.fill),
+                      child: Image.asset(layout.image, fit: BoxFit.fill),
                     ),
                   ),
                   // Le guide (Fuzzle) attend sur son emplacement vide.
-                  Positioned(
-                    left: foot.dx - guideH * .45,
-                    top: foot.dy - guideH,
-                    height: guideH,
-                    child: IgnorePointer(
-                      child: ExcludeSemantics(
-                        child: Image.asset(Monster.fuzzle.asset),
+                  if (foot != null)
+                    Positioned(
+                      left: foot.dx - guideH * .45,
+                      top: foot.dy - guideH,
+                      height: guideH,
+                      child: IgnorePointer(
+                        child: ExcludeSemantics(
+                          child: Image.asset(Monster.fuzzle.asset),
+                        ),
                       ),
                     ),
-                  ),
                 ] else ...[
                   // Mer, phare et bateau des monstres (illustration du site).
                   Positioned.fill(
@@ -179,14 +210,8 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
                 ],
                 for (final place in IslandPlace.values)
                   Positioned(
-                    left: (center(place).dx - spot / 2).clamp(
-                      area.left,
-                      area.right - spot,
-                    ),
-                    top: (center(place).dy - spot / 2).clamp(
-                      area.top,
-                      area.bottom - spot,
-                    ),
+                    left: placeRect(place).left,
+                    top: placeRect(place).top,
                     width: spot,
                     height: spot,
                     child: PlaceButton(
@@ -247,6 +272,11 @@ class _IslandMapScreenState extends ConsumerState<IslandMapScreen>
   }
 }
 
+/// Largeur du HUD en haut a droite : bouton son 72 dp, ecart, entree
+/// parents 44 dp, marge 12 dp.
+const _hudWidth =
+    12 + AppSizes.homeButton + AppSizes.gap + AppSizes.parentEntry + 12;
+
 /// Entree de l'espace parents : volontairement discrete (44 dp).
 class _ParentEntry extends StatelessWidget {
   const _ParentEntry({required this.onTap});
@@ -257,26 +287,29 @@ class _ParentEntry extends StatelessWidget {
     button: true,
     label: S.parents,
     excludeSemantics: true,
+    // Volontairement inerte (retour QA) : ni son, ni oscillation, ni
+    // animation, ni ripple ; zone tactile opaque de 44 dp minimum.
     child: GestureDetector(
       key: const Key('parents-entry'),
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Container(
-        width: AppSizes.parentEntry,
-        height: AppSizes.parentEntry,
-        decoration: BoxDecoration(
-          color: AppColors.paper.withValues(alpha: .8),
-          shape: BoxShape.circle,
-          border: Border.all(color: AppColors.plum, width: 2),
-        ),
+      child: SizedBox.square(
+        dimension: AppSizes.parentEntry,
         child: DesignArt.enabled
-            ? Padding(
-                padding: const EdgeInsets.all(4),
-                child: Image.asset(DesignArt.parentalGate),
-              )
-            : const Icon(
-                Icons.family_restroom_rounded,
-                size: 24,
-                color: AppColors.plum,
+            // Roue dentee grise de Margaux (provisoire), dessinee telle
+            // quelle, sans disque ni relief.
+            ? Image.asset(DesignArt.parentalGate)
+            : DecoratedBox(
+                decoration: BoxDecoration(
+                  color: AppColors.paper.withValues(alpha: .8),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.plum, width: 2),
+                ),
+                child: const Icon(
+                  Icons.family_restroom_rounded,
+                  size: 24,
+                  color: AppColors.plum,
+                ),
               ),
       ),
     ),

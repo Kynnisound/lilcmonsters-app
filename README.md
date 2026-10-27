@@ -167,14 +167,15 @@ Ambiances : volume 0,55, effets 0,9 (fourchettes du manifeste). `AmbienceScope` 
 
 ## Assets illustrés de Margaux (version de travail)
 
-Livrés par Margaux Vérany le 27/10/2026 dans `design/assets/` (voir son `README.md` et `manifest.json`, non modifiés). **Version de travail, pas encore validée par David.** Copiés tels quels, avec les dossiers `2.0x/` et `3.0x/`, dans `assets/images/map/` (sans le recadrage `safe16x9`, inutile au code), `assets/images/places/` et `assets/images/icons/` (PNG uniquement, pas de SVG ni de `flutter_svg`).
+Livrés par Margaux Vérany le 27/10/2026 (v1.2) dans `design/assets/` (voir son `README.md` et `manifest.json`, non modifiés). **Version de travail, pas encore validée par David.** Copiés tels quels, avec `2.0x/` et `3.0x/`, dans `assets/images/map/` (cartes téléphone et tablette 4:3), `assets/images/places/` (lieux exportés en 200 dp) et `assets/images/icons/` (PNG uniquement).
 
-- Tous les chemins, le cadre 812 x 375 dp, les centres des 7 lieux et la place du guide sont dans **`lib/core/content/design_art.dart`**.
-- Retour aux éléments provisoires (île vectorielle, disques des guides, icônes Material) sans toucher au code : `flutter run --dart-define=DESIGN_ART_V1=false` (vérifié : les 25 tests passent dans les deux modes). Retrait définitif : passer `DesignArt.enabled` à `false`, retirer les trois dossiers de `pubspec.yaml` et de `assets/images/`.
-- Carte : décor en `BoxFit.cover`, lieux de 120 à 140 dp centrés sur leur emplacement, Fuzzle debout sur l'emplacement du guide. Version verrouillée : cadenas déjà dessiné ; l'anneau soleil « vient d'être débloqué » et la médaille du pass restent dessinés par l'appli.
-- Icônes remplacées : pictogrammes des 7 lieux, son (marche / arrêt), entrée parents, maison, cadenas des contenus, coquillage de la plage. `icon_back` et `icon_padlock` sont copiées mais pas encore utilisées.
-- Tablette 4:3 : le cadre 812 x 375 est un cadre de téléphone. En `cover`, il couperait la grotte et le puzzle d'îlots ; l'appli réduit donc la carte pour garder la largeur utile (667 dp) et complète en haut et en bas avec le lagon uni. Ça reste lisible, mais on voit des bandes : attendre la version 4:3 de Margaux.
-- Poids : environ 4,8 Mo de PNG (dont 3,2 Mo pour les lieux) ; à convertir en WebP une fois la série validée.
+- Chemins et règles : **`lib/core/content/design_art.dart`**. Dispositions de carte générées depuis le manifeste par `python3 tool/sync_design_manifest.py` (écrit `lib/core/content/design_map_layouts.g.dart` et recopie les cartes ; lit `map.layouts.phone` et `map.layouts.tablet43`, ainsi que l'ancien format `map.spots`). À relancer à chaque livraison de Margaux.
+- Retour aux éléments provisoires sans toucher au code : `--dart-define=DESIGN_ART_V1=false` (les tests passent dans les deux modes). Retrait définitif : passer `DesignArt.enabled` à `false`, retirer les trois dossiers de `pubspec.yaml` et de `assets/images/`.
+- Règles de la carte (manifeste v1.2) : carte `tablet43` (1024 x 768 dp) quand largeur / hauteur < 1,6, sinon carte téléphone (812 x 375 dp) ; décor en `BoxFit.cover` (échelle `s`) ; lieux de `140 dp x s`, bornés entre 120 et 200 dp, centrés sur leur position du manifeste ; zone de tap circulaire de 130/140 de la taille du lieu ; HUD (son 72 dp, entrée parents 44 dp, maison 72 dp) en dp fixes ; aucun lieu dans la zone HUD.
+- Pas de pictogramme de module sur les lieux de la carte : cadenas déjà dessiné sur les lieux verrouillés, anneau soleil « nouveau » et médaille du pass dessinés par l'appli.
+- Entrée parents : roue dentée grise dessinée telle quelle (provisoire), sans disque, sans son, sans oscillation, sans animation ni ripple, zone tactile de 44 dp.
+- Tablette 16:10 (1280 x 800, rapport 1,6) : elle reçoit la carte téléphone, rognée d'environ 225 dp de chaque côté ; la grotte, la plage et le puzzle d'îlots touchent les bords. Plutôt qu'une 3e carte, passer le seuil à 1,7 (la carte 4:3 n'y perdrait qu'environ 80 dp de lagon en haut et en bas) : à valider avec Margaux.
+- Poids : environ 9 Mo de PNG (dont 5,6 Mo pour les lieux) ; à convertir en WebP une fois la série validée.
 
 ## Firebase : ce qu'il faudra faire une fois le projet créé par David
 

@@ -10,7 +10,7 @@ G='/workspace/seamonsters/design/_work/assets_gen'
 OUT='/workspace/seamonsters/design/assets/places'
 PLUM=np.array([58,23,82],float); BORDER=np.array([108,52,115],float)
 MIST=np.array([0xB9,0xB3,0xC7],float)
-DP=140  # landmark box in dp (hit area 120-140 dp centred in it)
+DP=200  # export box in dp: places are displayed at 140 dp x map scale, clamped 120..200 dp, so assets cover 200 dp @3x (600 px)
 SRC={'beach':'lm_beach_b','cave':'lm_cave_b','forest':'lm_forest_a','library':'lm_library_a',
      'lighthouse':'lm_lighthouse_a','islets':'lm_islets_a','shadow':'lm_shadow_b'}
 SAT={'shadow':1.3}

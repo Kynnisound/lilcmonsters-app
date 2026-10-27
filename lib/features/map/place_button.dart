@@ -7,6 +7,7 @@ import '../../core/content/design_art.dart';
 import '../../core/l10n/strings.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/widgets/bouncy_button.dart';
+import '../../core/widgets/circle_hit_area.dart';
 import '../../core/widgets/locked_badge.dart';
 import '../../core/widgets/round_icon_button.dart';
 import '../../core/widgets/wobble.dart';
@@ -61,7 +62,7 @@ class _PlaceButtonState extends ConsumerState<PlaceButton> {
       );
     }
 
-    return Wobble(
+    final button = Wobble(
       trigger: _wobble,
       child: BouncyButton(
         semanticLabel: label,
@@ -115,10 +116,15 @@ class _PlaceButtonState extends ConsumerState<PlaceButton> {
               ),
       ),
     );
+    // Lieux illustres : zone de tap circulaire (130/140 de la boite).
+    return DesignArt.enabled
+        ? CircleHitArea(ratio: DesignArt.tapRatio, child: button)
+        : button;
   }
 
-  /// Lieu illustre (assets de travail de Margaux) : le cadenas est deja
-  /// dessine sur la version verrouillee ; l'anneau soleil "vient d'etre
+  /// Lieu illustre (assets de travail de Margaux), sans pictogramme (les
+  /// icones de modules ne servent que dans les modules et le HUD) : le
+  /// cadenas est deja dessine sur la version verrouillee ; l'anneau soleil "vient d'etre
   /// debloque" et la medaille du pass restent dessines par l'appli.
   Widget _artPlace(IslandPlace p, bool locked) => Stack(
     clipBehavior: Clip.none,
@@ -139,12 +145,6 @@ class _PlaceButtonState extends ConsumerState<PlaceButton> {
           fit: BoxFit.contain,
           alignment: Alignment.bottomCenter,
         ),
-      ),
-      // Pictogramme du module, en bas a gauche.
-      Positioned(
-        left: -4,
-        bottom: -4,
-        child: Image.asset(DesignArt.icon(p.iconArt), width: 48, height: 48),
       ),
       if (!locked && !widget.premiumOwned)
         const Positioned(right: -4, top: -4, child: CrownBadge(size: 40)),

@@ -122,10 +122,15 @@ Reference points: Apple HIG minimum is 44 pt and Material is 48 dp, both for adu
 |---|---|---|
 | Any child-facing target (minimum) | **72 dp** | 24 dp |
 | Primary action (Play / Go / Next) | **96 dp** circle or 96 dp-tall pill | 32 dp from screen edge |
-| Map places (7 places on the island map hub) | **120 to 140 dp** hit area (art can be bigger) | well apart, no overlaps |
+| Map places (7 places on the island map hub) | 140 dp × map scale, clamped **120 to 200 dp**; hit area 130/140 of that (see map places rules) | at least 132 dp centre to centre, no overlaps |
 | Colour dots (cave) | 72 dp | 16 dp |
 | Back / home | 72 dp, always top-left, same icon everywhere | |
 | Parental gate entry | touch target **at least 44 pt** (44 dp); deliberately unremarkable (see the parental-gate rule below) | top-right, outside the play area |
+
+**Map places rules** (added 27 Oct 2026, v1.2)
+- **(a) No module pictograms on the map.** The drawn place plus its spoken label (the guide names it on tap) is the identifier: remove the small module icons at the bottom-left of places. Module icons are kept only inside the modules and in the HUD (back, home, sound and the like). The locked state keeps its plum padlock badge, and the "new" `sun` ring stays.
+- **(b) Places scale with the decor.** Place size = **140 dp × the map's scale factor** (the same factor used to fit the decor to the screen, `BoxFit.cover`), **clamped between 120 dp and 200 dp**; the tap area scales with it (circle, 130/140 of the place size). Positions come from `design/assets/manifest.json → map.layouts` (phone 812 × 375 dp, tablet 4:3 1024 × 768 dp) in map-relative units. **HUD buttons do not scale**: they stay at their fixed dp size (sound and home 72 dp, parental gate 44 dp) inside the layout's HUD-safe zone at the top right.
+- Places are at least 132 dp apart (centre to centre) in every layout.
 
 **Parental-gate rule** (added 27 Oct 2026 after QA review)
 - Touch target at least **44 pt** (44 dp, `AppSizes.parentEntry`). The icon is a flat monochrome mauve-grey gear (`#5A536C`, at least 3:1 on lagoon and cream), thin outline, no gloss, no relief, no shadow, no people, and clearly distinct from the plum padlock in shape, colour and weight. Asset: `design/assets/icons/icon_parental_gate.png`.
@@ -143,6 +148,7 @@ Reference points: Apple HIG minimum is 44 pt and Material is 48 dp, both for adu
 
 ## 5. Icon style
 
+- Module icons are used inside the modules and in the HUD only, never as pictograms on the map places (§4, map places rule (a)).
 - Chunky filled objects (shell, crayon, magnifier, book, lighthouse, puzzle piece), 2 fills + 4 dp plum outline, inside a rounded tile (radius ~33%), matching the painted storybook look.
 - No thin strokes, no letters or numbers inside icons, no abstract UI glyphs (no hamburger, no gear for kids). Exception: the parent-only gear of the parental gate (§4), which is meant to look dull to children.
 - Every icon has a voice line (the guide names it on first tap).

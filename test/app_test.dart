@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:seamonsters/core/audio/sound_effect.dart';
+import 'package:seamonsters/core/content/design_art.dart';
 import 'package:seamonsters/core/config/app_config.dart';
 import 'package:seamonsters/core/l10n/strings.dart';
 import 'package:seamonsters/core/progress/progress.dart';
@@ -17,9 +18,7 @@ import 'package:seamonsters/features/shadows/shadows_screen.dart';
 import 'helpers.dart';
 
 void main() {
-  testWidgets('la carte affiche les 7 lieux, cibles de 120 a 140 dp', (
-    tester,
-  ) async {
+  testWidgets('la carte affiche les 7 lieux, cibles bornees', (tester) async {
     final h = await pumpApp(tester);
     expect(find.byType(IslandMapScreen), findsOneWidget);
     expect(h.audio.ambience, Ambience.map);
@@ -27,7 +26,9 @@ void main() {
       final size = tester.getSize(find.byKey(Key('place-${p.name}')));
       expect(
         size.width,
-        inInclusiveRange(AppSizes.mapSpotMin, AppSizes.mapSpotMax),
+        DesignArt.enabled
+            ? inInclusiveRange(DesignArt.placeMin, DesignArt.placeMax)
+            : inInclusiveRange(AppSizes.mapSpotMin, AppSizes.mapSpotMax),
       );
       expect(
         find.bySemanticsLabel(RegExp(RegExp.escape(p.label))),
