@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:seamonsters/core/audio/sound_effect.dart';
+import 'package:seamonsters/core/content/design_art.dart';
 import 'package:seamonsters/core/config/app_config.dart';
 import 'package:seamonsters/core/l10n/strings.dart';
 import 'package:seamonsters/core/progress/progress.dart';
@@ -17,16 +18,17 @@ import 'package:seamonsters/features/shadows/shadows_screen.dart';
 import 'helpers.dart';
 
 void main() {
-  testWidgets('la carte affiche les 7 lieux, cibles de 120 a 140 dp', (
-    tester,
-  ) async {
-    await pumpApp(tester);
+  testWidgets('la carte affiche les 7 lieux, cibles bornees', (tester) async {
+    final h = await pumpApp(tester);
     expect(find.byType(IslandMapScreen), findsOneWidget);
+    expect(h.audio.ambience, Ambience.map);
     for (final p in IslandPlace.values) {
       final size = tester.getSize(find.byKey(Key('place-${p.name}')));
       expect(
         size.width,
-        inInclusiveRange(AppSizes.mapSpotMin, AppSizes.mapSpotMax),
+        DesignArt.enabled
+            ? inInclusiveRange(100, DesignArt.placeMax)
+            : inInclusiveRange(AppSizes.mapSpotMin, AppSizes.mapSpotMax),
       );
       expect(
         find.bySemanticsLabel(RegExp(RegExp.escape(p.label))),
@@ -34,7 +36,7 @@ void main() {
       );
     }
     // Puzzle et ombres verrouilles au depart.
-    expect(find.byType(PadlockBadge), findsNWidgets(2));
+    expect(_lockedPlaces, findsNWidgets(2));
   });
 
   testWidgets('cibles tactiles conformes (guideline Android 48 dp)', (
@@ -54,7 +56,7 @@ void main() {
     await tester.tap(find.byKey(const Key('place-puzzle')));
     await settle(tester);
     expect(find.byType(PuzzleScreen), findsNothing);
-    expect(h.audio.played, contains(SoundEffect.boing));
+    expect(h.audio.played, contains(SoundEffect.placeLocked));
   });
 
   testWidgets('bac a sable : les sons jouent et 3 sons ouvrent le puzzle', (
@@ -67,18 +69,23 @@ void main() {
 
     await tester.tap(find.byKey(const Key('pad-fuzzle')));
     await tester.tap(find.byKey(const Key('pad-wave')));
-    await tester.tap(find.byKey(const Key('pad-star')));
+    await tester.tap(find.byKey(const Key('pad-seagull')));
     await settle(tester);
     expect(
       h.audio.played,
-      containsAll([SoundEffect.noteDo, SoundEffect.wave, SoundEffect.chime]),
+      containsAll([
+        SoundEffect.noteDo,
+        SoundEffect.beachWave,
+        SoundEffect.beachSeagull,
+      ]),
     );
+    expect(h.audio.ambiences, contains(Ambience.beach));
     expect(h.container.read(progressProvider).puzzleUnlocked, isTrue);
 
     await tester.tap(find.byKey(const Key('home-button')));
     await settle(tester);
     expect(find.byType(IslandMapScreen), findsOneWidget);
-    expect(find.byType(PadlockBadge), findsOneWidget);
+    expect(_lockedPlaces, findsOneWidget);
   });
 
   testWidgets('puzzle 2 x 2 jouable au toucher, puis ombres debloquees', (
@@ -103,7 +110,14 @@ void main() {
       await tester.pump();
     }
     await settle(tester, 20);
-    expect(h.audio.played, contains(SoundEffect.success));
+    expect(
+      h.audio.played,
+      containsAll([
+        SoundEffect.piecePickup,
+        SoundEffect.pieceSnap,
+        SoundEffect.puzzleComplete,
+      ]),
+    );
     expect(find.byKey(const Key('puzzle-next')), findsOneWidget);
     expect(h.container.read(progressProvider).shadowsUnlocked, isTrue);
   });
@@ -126,7 +140,10 @@ void main() {
         .replaceFirst('shadow-target-', '');
     await tester.tap(find.byKey(Key('shadow-$name')));
     await settle(tester, 20);
-    expect(h.audio.played, contains(SoundEffect.success));
+    expect(
+      h.audio.played,
+      containsAll([SoundEffect.lanternOn, SoundEffect.shadowFound]),
+    );
   });
 
   testWidgets('phare : porte parentale, mauvaise reponse refusee', (
@@ -137,16 +154,18 @@ void main() {
     await settle(tester);
     expect(find.byKey(const Key('parental-question')), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('parental-choice-11')));
-    await settle(tester);
+    await answerGate(tester, '41');
     expect(find.byType(LighthouseScreen), findsNothing);
+    expect(find.byKey(const Key('parental-question')), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('parental-choice-12')));
-    await settle(tester);
+    await passGate(tester);
     expect(find.byType(LighthouseScreen), findsOneWidget);
 
+    // Chaque sortie vers YouTube redemande la porte (BUG-002).
     await tester.tap(find.byKey(const Key('open-channel')));
     await settle(tester);
+    expect(h.links.opened, isEmpty);
+    await passGate(tester);
     expect(h.links.opened.single.toString(), AppConfig.youtubeChannelUrl);
   });
 
@@ -162,8 +181,7 @@ void main() {
       // Toucher un contenu verrouille ouvre la porte parentale puis l'espace parents.
       await tester.tap(find.bySemanticsLabel(S.premium).first);
       await settle(tester);
-      await tester.tap(find.byKey(const Key('parental-choice-12')));
-      await settle(tester);
+      await passGate(tester);
       expect(find.byType(ParentsScreen), findsOneWidget);
       await tester.tap(find.byKey(const Key('fake-purchase')));
       await settle(tester);
@@ -185,3 +203,11 @@ void main() {
     expect(find.byKey(const Key('book-play')), findsOneWidget);
   });
 }
+
+/// Lieux verrouilles sur la carte (cadenas dessine ou badge), quel que soit
+/// le jeu d'assets (DESIGN_ART_V1).
+final _lockedPlaces = find.byWidgetPredicate(
+  (w) =>
+      w.key is ValueKey<String> &&
+      (w.key as ValueKey<String>).value.startsWith('locked-'),
+);

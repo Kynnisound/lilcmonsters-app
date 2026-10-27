@@ -71,7 +71,8 @@ class _BookPlayerScreenState extends ConsumerState<BookPlayerScreen> {
                       if (_playing) {
                         audio.stopTrack();
                       } else {
-                        audio.playTrack(SoundEffect.chime.asset);
+                        // Provisoire : la narration n'est pas encore enregistree.
+                        audio.playTrack(SoundEffect.success.base);
                       }
                       setState(() => _playing = !_playing);
                     },

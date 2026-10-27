@@ -44,13 +44,13 @@ void main() {
     expect(g.isComplete, isTrue);
   });
 
-  test('porte parentale : la bonne reponse figure parmi 3 choix', () {
+  test('porte parentale : question en lettres, reponse de 2 chiffres', () {
     final rng = Random(9);
-    for (var i = 0; i < 50; i++) {
+    for (var i = 0; i < 200; i++) {
       final c = ParentalChallenge.random(rng);
-      expect(c.choices.toSet().length, 3);
-      expect(c.choices, contains(c.answer));
-      expect(c.choices.every((v) => v > 0), isTrue);
+      expect(c.answer, inInclusiveRange(36, 300));
+      // Aucun chiffre dans la question : rien a recopier pour l'enfant.
+      expect(c.question, isNot(matches(RegExp(r'\d'))));
     }
   });
 

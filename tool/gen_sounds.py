@@ -1,15 +1,30 @@
-"""Genere des sons placeholder libres de droits (synthese maison, domaine public / CC0).
-Usage: python3 tool/gen_sounds.py  -> ecrit assets/sounds/*.wav"""
+"""Genere les 5 notes pentatoniques des monstres (synthese maison, domaine public / CC0).
+Usage: python3 tool/gen_sounds.py  -> ecrit assets/sounds/note_*.wav"""
 import math, random, struct, wave, os
 SR = 22050
 OUT = os.path.join(os.path.dirname(__file__), '..', 'assets', 'sounds')
 
+# Niveau commun des pads de la plage (BUG-007) : RMS max sur 100 ms a
+# -18 dBFS, comme les bruitages de Shada ramenes par tool/normalize_pads.py.
+TARGET_RMS_DBFS = -18.0
+MAX_PEAK_DBFS = -3.0
+
+def rms_max_100ms(samples):
+    win, hop = int(SR * 0.1), int(SR * 0.01)
+    best = 0.0
+    for i in range(0, max(1, len(samples) - win + 1), hop):
+        chunk = samples[i:i + win]
+        best = max(best, math.sqrt(sum(s * s for s in chunk) / win))
+    return best
+
 def write(name, samples):
     os.makedirs(OUT, exist_ok=True)
-    peak = max(1e-9, max(abs(s) for s in samples))
+    gain = 10 ** (TARGET_RMS_DBFS / 20) / max(1e-9, rms_max_100ms(samples))
+    peak = max(abs(s) for s in samples) * gain
+    assert 20 * math.log10(peak) <= MAX_PEAK_DBFS, name
     with wave.open(os.path.join(OUT, name + '.wav'), 'w') as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
-        w.writeframes(b''.join(struct.pack('<h', int(s / peak * 0.8 * 32767)) for s in samples))
+        w.writeframes(b''.join(struct.pack('<h', int(s * gain * 32767)) for s in samples))
 
 def env(i, n, a=0.005, decay=6.0):
     t = i / SR
@@ -70,7 +85,7 @@ def seq(freqs, step=0.12):
 C5, D5, E5, G5, A5, C6 = 523.25, 587.33, 659.25, 783.99, 880.0, 1046.5
 write('note_do', bell(C5)); write('note_re', bell(D5)); write('note_mi', bell(E5))
 write('note_sol', bell(G5)); write('note_la', bell(A5))
-write('boing', boing()); write('pop', pop()); write('wave', wave_sound()); write('drum', drum())
-write('chime', chord([C6, E5 * 2, G5 * 2])); write('success', seq([C5, E5, G5, C6]))
-write('tap', pop(0.08))
+# Les autres bruitages (boing, pop, wave, drum, chime, success, tap) sont
+# remplaces par les sons de Shada (assets/audio/) ; seules les 5 notes
+# pentatoniques des monstres restent generees ici.
 print('ok')

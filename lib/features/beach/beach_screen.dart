@@ -3,7 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/audio/ambience_scope.dart';
 import '../../core/audio/audio_providers.dart';
+import '../../core/audio/sound_effect.dart';
 import '../../core/content/monsters.dart';
 import '../../core/content/scenes.dart';
 import '../../core/l10n/strings.dart';
@@ -23,7 +25,11 @@ class BeachScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Midi scintillant : la mer des monstres sous un voile ciel, lagon
-    // puis sable. Guide : Pip.
+    // puis sable, et le bruit des vagues en boucle. Guide : Pip.
+    return AmbienceScope(ambience: Ambience.beach, child: _scaffold());
+  }
+
+  Widget _scaffold() {
     return ModuleScaffold(
       semanticTitle: S.beach,
       backdrop: Scenes.beach,
@@ -111,6 +117,12 @@ class _PadState extends ConsumerState<_Pad> {
               ? Padding(
                   padding: const EdgeInsets.all(8),
                   child: Image.asset(d.monster!.asset, fit: BoxFit.contain),
+                )
+              : d.iconAsset != null
+              ? Image.asset(
+                  d.iconAsset!,
+                  width: widget.side * .62,
+                  height: widget.side * .62,
                 )
               : Icon(d.icon, size: widget.side * .45, color: AppColors.plum),
         ),

@@ -1,8 +1,28 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+// BUG-017 : signature release. android/key.properties (ignore par Git, voir
+// android/.gitignore) donne storeFile, storePassword, keyAlias, keyPassword.
+// Sans ce fichier, toute tache release echoue avec un message clair : jamais
+// de signature silencieuse avec la cle debug. Exception explicite, reservee
+// aux builds QA non publiables : -PallowDebugSigning=true.
+val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        keystorePropertiesFile.inputStream().use { load(it) }
+    }
+}
+val releaseKeyFields = listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
+val missingReleaseKeyFields = releaseKeyFields.filter {
+    keystoreProperties.getProperty(it).isNullOrBlank()
+}
+val hasReleaseKey = keystorePropertiesFile.exists() && missingReleaseKeyFields.isEmpty()
+val allowDebugSigning = providers.gradleProperty("allowDebugSigning").orNull == "true"
 
 android {
     namespace = "com.lilcmonsters.seamonsters"
@@ -29,11 +49,24 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (hasReleaseKey) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = when {
+                hasReleaseKey -> signingConfigs.getByName("release")
+                allowDebugSigning -> signingConfigs.getByName("debug")
+                else -> null
+            }
         }
     }
 }
@@ -46,4 +79,39 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+// BUG-017 : bloque toute tache release sans cle de publication.
+val releaseSigningProblem: String? = when {
+    hasReleaseKey -> null
+    allowDebugSigning -> null
+    !keystorePropertiesFile.exists() ->
+        "android/key.properties est absent."
+    else ->
+        "android/key.properties incomplet : manque " +
+            missingReleaseKeyFields.joinToString(", ") + "."
+}
+if (allowDebugSigning && !hasReleaseKey) {
+    logger.warn(
+        "ATTENTION : release signe avec la cle DEBUG (-PallowDebugSigning=true). " +
+            "Build QA uniquement, NON PUBLIABLE sur un store.",
+    )
+}
+gradle.taskGraph.whenReady {
+    val problem = releaseSigningProblem ?: return@whenReady
+    val releaseTasks = allTasks.filter {
+        it.project == project && it.name.contains("Release") &&
+            (it.name.startsWith("assemble") || it.name.startsWith("bundle") ||
+                it.name.startsWith("package") || it.name.startsWith("sign"))
+    }
+    if (releaseTasks.isNotEmpty()) {
+        throw GradleException(
+            "Signature release impossible : $problem\n" +
+                "Creer android/key.properties (ignore par Git) avec storeFile, " +
+                "storePassword, keyAlias, keyPassword.\n" +
+                "Build QA non publiable seulement : ajouter -PallowDebugSigning=true " +
+                "(flutter build appbundle -PallowDebugSigning=true, ou " +
+                "./gradlew bundleRelease -PallowDebugSigning=true).",
+        )
+    }
 }

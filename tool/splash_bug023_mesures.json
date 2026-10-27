@@ -1,0 +1,110 @@
+[
+ {
+  "ecran": "Android 12/12L telephone 640 x 360 dp",
+  "bas_du_logo": 218.0,
+  "haut_des_lettres": 229.25,
+  "ecart": 11.25,
+  "haut_du_logo": 94.75,
+  "marge_bas_lettres": 68.5
+ },
+ {
+  "ecran": "Android 12/12L telephone 915 x 412 dp",
+  "bas_du_logo": 244.0,
+  "haut_des_lettres": 281.25,
+  "ecart": 37.25,
+  "haut_du_logo": 120.75,
+  "marge_bas_lettres": 68.5
+ },
+ {
+  "ecran": "Android 12+ tablette 1280 x 800 dp",
+  "bas_du_logo": 438.0,
+  "haut_des_lettres": 669.25,
+  "ecart": 231.25,
+  "haut_du_logo": 314.75,
+  "marge_bas_lettres": 68.5
+ },
+ {
+  "ecran": "Android 13+ telephone 640 x 360 dp",
+  "bas_du_logo": 218.0,
+  "haut_des_lettres": 287.25,
+  "ecart": 69.25,
+  "haut_du_logo": 94.75,
+  "marge_bas_lettres": 10.5
+ },
+ {
+  "ecran": "Android 13+ telephone 915 x 412 dp",
+  "bas_du_logo": 244.0,
+  "haut_des_lettres": 326.25,
+  "ecart": 82.25,
+  "haut_du_logo": 120.75,
+  "marge_bas_lettres": 23.5
+ },
+ {
+  "ecran": "Android 11 et avant 640 x 360 dp",
+  "bas_du_logo": 258.25,
+  "haut_des_lettres": 289.25,
+  "ecart": 31.0,
+  "haut_du_logo": 89.25,
+  "marge_bas_lettres": 8.5
+ },
+ {
+  "ecran": "Android 11 et avant 533 x 320 dp",
+  "bas_du_logo": 238.25,
+  "haut_des_lettres": 249.25,
+  "ecart": 11.0,
+  "haut_du_logo": 69.25,
+  "marge_bas_lettres": 8.5
+ },
+ {
+  "ecran": "iPhone SE 568 x 320 pt",
+  "bas_du_logo": 238.25,
+  "haut_des_lettres": 249.25,
+  "ecart": 11.0,
+  "haut_du_logo": 69.25,
+  "marge_bas_lettres": 8.5
+ },
+ {
+  "ecran": "iPhone barre d accueil 812 x 375 pt",
+  "bas_du_logo": 265.75,
+  "haut_des_lettres": 283.25,
+  "ecart": 17.5,
+  "haut_du_logo": 96.75,
+  "marge_bas_lettres": 29.5,
+  "ecart_barre_accueil": 16.5
+ },
+ {
+  "ecran": "iPhone barre d accueil 844 x 390 pt",
+  "bas_du_logo": 273.25,
+  "haut_des_lettres": 298.25,
+  "ecart": 25.0,
+  "haut_du_logo": 104.25,
+  "marge_bas_lettres": 29.5,
+  "ecart_barre_accueil": 16.5
+ },
+ {
+  "ecran": "iPhone barre d accueil 932 x 430 pt",
+  "bas_du_logo": 293.25,
+  "haut_des_lettres": 338.25,
+  "ecart": 45.0,
+  "haut_du_logo": 124.25,
+  "marge_bas_lettres": 29.5,
+  "ecart_barre_accueil": 16.5
+ },
+ {
+  "ecran": "iPad 1024 x 768 pt",
+  "bas_du_logo": 462.25,
+  "haut_des_lettres": 697.25,
+  "ecart": 235.0,
+  "haut_du_logo": 293.25,
+  "marge_bas_lettres": 8.5
+ },
+ {
+  "ecran": "iPad Air 1180 x 820 pt",
+  "bas_du_logo": 488.25,
+  "haut_des_lettres": 729.25,
+  "ecart": 241.0,
+  "haut_du_logo": 319.25,
+  "marge_bas_lettres": 28.5,
+  "ecart_barre_accueil": 15.5
+ }
+]

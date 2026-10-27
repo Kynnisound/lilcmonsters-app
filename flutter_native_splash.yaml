@@ -1,0 +1,35 @@
+# BUG-018 : ecran de demarrage natif (visuels de travail de Margaux,
+# validation de David attendue). Regenerer : dart run flutter_native_splash:create
+#
+# Nom de l'appli en bas (README de design/assets/launch/, Variantes B).
+# flutter_native_splash prend `branding` comme une image @4x et en derive
+# lui-meme mdpi..xxxhdpi et @1x..@3x (il ne lit pas les dossiers 2.0x/ et
+# 3.0x/) : on lui donne donc la source @4x de Margaux, 800 x 320, qui donne
+# exactement branding.png (200 x 80 dp) a l'ecran. branding.png et ses
+# variantes 2.0x/3.0x restent copiees dans assets/launch/splash/branding/.
+#
+# BUG-023 : logos recalcules pour que le nom ne touche jamais Pip, generes par
+# tool/splash_bug023.py depuis assets/launch/splash/android12/ (copie de
+# design/). Pas de branding_bottom_padding (aggraverait iPhone SE et
+# Android 11). Apres chaque `dart run flutter_native_splash:create`, relancer
+# `python3 tool/splash_bug023.py storyboard` (nom au bas de la zone sure iOS).
+flutter_native_splash:
+  color: "#3FC1B0"
+  color_dark: "#3FC1B0"
+  # Android 11 et avant, iOS : Pip a sa taille, remonte de 14 dp.
+  image: assets/launch/splash/bug023/splash_logo_1152.png   # image @4x
+  branding: assets/launch/splash/branding/branding_android12_800x320.png   # @4x
+  branding_mode: bottom
+  android_gravity: center
+  ios_content_mode: center
+  fullscreen: false
+  web: false               # rien a changer dans web/index.html
+  # BUG-020 : sans cette cle, flutter_native_splash:create retire
+  # android:screenOrientation de l'activite (appli en paysage seulement).
+  android_screen_orientation: sensorLandscape
+  android_12:
+    color: "#3FC1B0"
+    color_dark: "#3FC1B0"
+    # Pip x0,73, bas a 38 dp sous le centre, dans le cercle de 192 dp.
+    image: assets/launch/splash/bug023/splash_android12_1152.png
+    branding: assets/launch/splash/branding/branding_android12_800x320.png   # 800 x 320 exige

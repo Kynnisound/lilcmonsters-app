@@ -14,6 +14,13 @@ abstract interface class AudioService {
 
   Future<void> stopTrack();
 
+  /// Ambiance du lieu, en boucle. Remplace l'ambiance en cours.
+  Future<void> playAmbience(Ambience ambience);
+
+  /// Arrete [ambience] si c'est elle qui joue (un ecran qui se ferme ne
+  /// coupe pas l'ambience de l'ecran qui vient de s'ouvrir).
+  Future<void> stopAmbience(Ambience ambience);
+
   Future<void> setMuted(bool muted);
 
   Future<void> dispose();
@@ -23,6 +30,8 @@ abstract interface class AudioService {
 class RecordingAudioService implements AudioService {
   final List<SoundEffect> played = [];
   final List<String> tracks = [];
+  final List<Ambience> ambiences = [];
+  Ambience? ambience;
   bool _muted = false;
 
   @override
@@ -40,6 +49,17 @@ class RecordingAudioService implements AudioService {
 
   @override
   Future<void> stopTrack() async {}
+
+  @override
+  Future<void> playAmbience(Ambience a) async {
+    ambience = a;
+    if (!_muted) ambiences.add(a);
+  }
+
+  @override
+  Future<void> stopAmbience(Ambience a) async {
+    if (ambience == a) ambience = null;
+  }
 
   @override
   Future<void> setMuted(bool muted) async => _muted = muted;

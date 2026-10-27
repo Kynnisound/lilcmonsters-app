@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/audio/audio_providers.dart';
+import '../../core/audio/audio_service.dart';
 import '../../core/audio/sound_effect.dart';
+import '../../core/content/design_art.dart';
 import '../../core/content/game_random.dart';
 import '../../core/content/monsters.dart';
 import '../../core/content/scenes.dart';
@@ -34,23 +36,48 @@ class _ShadowsScreenState extends ConsumerState<ShadowsScreen> {
   int _celebrations = 0;
   Timer? _next;
 
+  /// Ombres trouvees depuis l'ouverture : toutes les [roundsPerLevel], un
+  /// petit air de fin de niveau remplace le son de reussite.
+  int _found = 0;
+  static const roundsPerLevel = 3;
+
+  /// Premier niveau (petits) : deux ombres seulement, les plus differentes.
+  int get _optionCount => _found < roundsPerLevel ? 2 : 3;
+
+  /// Aide progressive : apres [hintAfter] erreurs dans la manche, la bonne
+  /// ombre s'entoure d'un anneau soleil.
+  static const hintAfter = 2;
+  int _misses = 0;
+  late final AudioService _audio = ref.read(audioServiceProvider);
+
   @override
   void initState() {
     super.initState();
-    _round = ShadowRound.random(ref.read(gameRandomProvider));
+    _round = ShadowRound.random(
+      ref.read(gameRandomProvider),
+      optionCount: _optionCount,
+    );
+    // La lanterne de Bitsy s'allume.
+    _audio.play(SoundEffect.lanternOn);
   }
 
   @override
   void dispose() {
     _next?.cancel();
+    _audio.play(SoundEffect.lanternOff);
     super.dispose();
   }
 
   void _choose(Monster m) {
     if (_solved != null) return;
-    final audio = ref.read(audioServiceProvider);
+    final audio = _audio;
     if (_round.isCorrect(m)) {
-      audio.play(SoundEffect.success);
+      _found++;
+      audio.play(
+        _found % roundsPerLevel == 0
+            ? SoundEffect.shadowLevelComplete
+            : SoundEffect.shadowFound,
+      );
       ref.read(progressProvider.notifier).shadowFound();
       setState(() {
         _solved = m;
@@ -58,17 +85,23 @@ class _ShadowsScreenState extends ConsumerState<ShadowsScreen> {
       });
       _next = Timer(AppMotion.t4, () {
         if (!mounted) return;
+        audio.play(SoundEffect.lanternOn);
         setState(() {
           _round = ShadowRound.random(
             ref.read(gameRandomProvider),
+            optionCount: _optionCount,
             avoid: _round.target,
           );
           _solved = null;
+          _misses = 0;
         });
       });
     } else {
-      audio.play(SoundEffect.pop);
-      setState(() => _wobbles[m] = (_wobbles[m] ?? 0) + 1);
+      audio.play(SoundEffect.shadowWrong);
+      setState(() {
+        _wobbles[m] = (_wobbles[m] ?? 0) + 1;
+        _misses++;
+      });
     }
   }
 
@@ -100,6 +133,10 @@ class _ShadowsScreenState extends ConsumerState<ShadowsScreen> {
                               monster: m,
                               side: side,
                               revealed: _solved == m,
+                              hint:
+                                  _solved == null &&
+                                  _misses >= hintAfter &&
+                                  _round.isCorrect(m),
                               onChoose: () => _choose(m),
                             ),
                           ),
@@ -138,19 +175,28 @@ class _ShadowSlot extends StatelessWidget {
     required this.side,
     required this.revealed,
     required this.onChoose,
+    this.hint = false,
   });
 
   final Monster monster;
   final double side;
   final bool revealed;
+
+  /// Aide : anneau soleil fixe autour de la bonne ombre.
+  final bool hint;
   final VoidCallback onChoose;
 
   @override
   Widget build(BuildContext context) {
-    final image = Image.asset(monster.asset, fit: BoxFit.contain);
+    final image = Image.asset(
+      shadowGameColor(monster),
+      key: const ValueKey('color'),
+      fit: BoxFit.contain,
+    );
     return DragTarget<Monster>(
       onAcceptWithDetails: (_) => onChoose(),
       builder: (context, candidates, _) => BouncyButton(
+        key: hint ? const Key('shadow-hint') : null,
         semanticLabel: revealed
             ? '${S.wellDone} ${monster.displayName}'
             : 'Ombre de monstre',
@@ -164,10 +210,10 @@ class _ShadowSlot extends StatelessWidget {
             ),
             shape: BoxShape.circle,
             border: Border.all(
-              color: candidates.isNotEmpty || revealed
+              color: candidates.isNotEmpty || revealed || hint
                   ? AppColors.sun
                   : AppColors.plum,
-              width: candidates.isNotEmpty || revealed
+              width: candidates.isNotEmpty || revealed || hint
                   ? AppSizes.sunRing
                   : AppSizes.outline,
             ),
@@ -176,6 +222,13 @@ class _ShadowSlot extends StatelessWidget {
             duration: AppMotion.t2,
             child: revealed
                 ? image
+                : DesignArt.enabled
+                // Ombre dessinee par Margaux, affichee telle quelle.
+                ? Image.asset(
+                    DesignArt.shadow(monster.name),
+                    key: const ValueKey('shadow'),
+                    fit: BoxFit.contain,
+                  )
                 : ColorFiltered(
                     key: const ValueKey('shadow'),
                     colorFilter: ColorFilter.mode(
@@ -190,6 +243,11 @@ class _ShadowSlot extends StatelessWidget {
     );
   }
 }
+
+/// Image en couleur d'un monstre dans le jeu d'ombres : la pose de Margaux
+/// (v2) en mode illustre, l'illustration du livre en repli.
+String shadowGameColor(Monster m) =>
+    DesignArt.enabled ? DesignArt.shadowColor(m.name) : m.asset;
 
 class _LanternMonster extends StatelessWidget {
   const _LanternMonster({super.key, required this.monster, required this.side});
@@ -206,7 +264,7 @@ class _LanternMonster extends StatelessWidget {
         gradient: RadialGradient(colors: [AppColors.sun, Color(0x00FFC56B)]),
       ),
       padding: const EdgeInsets.all(12),
-      child: Image.asset(monster.asset, fit: BoxFit.contain),
+      child: Image.asset(shadowGameColor(monster), fit: BoxFit.contain),
     );
     return Semantics(
       label: 'Monstre a placer : ${monster.displayName}',

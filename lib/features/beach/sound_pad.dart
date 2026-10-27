@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/audio/sound_effect.dart';
+import '../../core/content/design_art.dart';
 import '../../core/content/monsters.dart';
 import '../../core/theme/app_tokens.dart';
 
@@ -13,6 +14,7 @@ class SoundPadData {
     required this.color,
     this.monster,
     this.icon,
+    this.iconAsset,
   });
 
   final String id;
@@ -21,6 +23,9 @@ class SoundPadData {
   final Color color;
   final Monster? monster;
   final IconData? icon;
+
+  /// Icone dessinee (assets de Margaux), prioritaire sur [icon].
+  final String? iconAsset;
 }
 
 final beachPads = <SoundPadData>[
@@ -32,32 +37,41 @@ final beachPads = <SoundPadData>[
       color: m.color,
       monster: m,
     ),
+  // Objets de plage : bruitages de Shada (assets/audio/beach/).
   const SoundPadData(
     id: 'wave',
     label: 'Vague',
-    effect: SoundEffect.wave,
+    effect: SoundEffect.beachWave,
     color: AppColors.lagoon,
     icon: Icons.waves_rounded,
   ),
   const SoundPadData(
-    id: 'drum',
-    label: 'Tambour',
-    effect: SoundEffect.drum,
-    color: AppColors.sunset,
-    icon: Icons.circle,
+    id: 'seagull',
+    label: 'Mouette',
+    effect: SoundEffect.beachSeagull,
+    color: AppColors.sky,
+    icon: Icons.flutter_dash_rounded,
   ),
   const SoundPadData(
     id: 'shell',
     label: 'Coquillage',
-    effect: SoundEffect.pop,
-    color: AppColors.sand,
+    effect: SoundEffect.beachShell,
+    color: AppColors.peach,
+    icon: Icons.spa_rounded,
+    iconAsset: DesignArt.enabled ? DesignArt.beachShell : null,
+  ),
+  const SoundPadData(
+    id: 'bubbles',
+    label: 'Bulles',
+    effect: SoundEffect.beachBubbles,
+    color: AppColors.foam,
     icon: Icons.bubble_chart_rounded,
   ),
   const SoundPadData(
-    id: 'star',
-    label: 'Etoile de mer',
-    effect: SoundEffect.chime,
-    color: AppColors.sun,
-    icon: Icons.star_rounded,
+    id: 'sand',
+    label: 'Sable',
+    effect: SoundEffect.beachSand,
+    color: AppColors.sand,
+    icon: Icons.grain_rounded,
   ),
 ];

@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/audio/audio_providers.dart';
 import '../../core/audio/sound_effect.dart';
+import '../../core/content/design_art.dart';
 import '../../core/l10n/strings.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/widgets/bouncy_button.dart';
+import '../../core/widgets/circle_hit_area.dart';
 import '../../core/widgets/locked_badge.dart';
 import '../../core/widgets/round_icon_button.dart';
 import '../../core/widgets/wobble.dart';
@@ -21,7 +23,11 @@ class PlaceButton extends ConsumerStatefulWidget {
     required this.unlocked,
     required this.premiumOwned,
     required this.onOpen,
+    this.tapRatio = DesignArt.tapRatio,
   });
+
+  /// Diametre du cercle de tap / taille du lieu (mode illustre).
+  final double tapRatio;
 
   final IslandPlace place;
   final bool unlocked;
@@ -60,52 +66,94 @@ class _PlaceButtonState extends ConsumerState<PlaceButton> {
       );
     }
 
-    return Wobble(
+    final button = Wobble(
       trigger: _wobble,
       child: BouncyButton(
         semanticLabel: label,
         onTap: () {
           if (locked) {
-            ref.read(audioServiceProvider).play(SoundEffect.boing);
+            ref.read(audioServiceProvider).play(SoundEffect.placeLocked);
             setState(() => _wobble++);
             return;
           }
           setState(() => _justUnlocked = false);
           widget.onOpen();
         },
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned.fill(
-              child: ToyDisc(
-                color: locked ? AppColors.mist : AppColors.paper,
-                edgeColor: locked ? AppColors.mistDeep : p.guide.color,
-                ring: _justUnlocked ? AppColors.sun : null,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 2),
-                  child: Opacity(opacity: locked ? .45 : 1, child: guide),
-                ),
+        child: DesignArt.enabled
+            ? _artPlace(p, locked)
+            : Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned.fill(
+                    child: ToyDisc(
+                      color: locked ? AppColors.mist : AppColors.paper,
+                      edgeColor: locked ? AppColors.mistDeep : p.guide.color,
+                      ring: _justUnlocked ? AppColors.sun : null,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 2),
+                        child: Opacity(opacity: locked ? .45 : 1, child: guide),
+                      ),
+                    ),
+                  ),
+                  // Pictogramme du module, en bas a gauche.
+                  Positioned(
+                    left: -4,
+                    bottom: -4,
+                    child: _IconTile(icon: p.icon, color: p.guide.color),
+                  ),
+                  if (locked)
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: PadlockBadge(
+                        key: Key('locked-${p.name}'),
+                        size: 44,
+                      ),
+                    )
+                  else if (!widget.premiumOwned)
+                    const Positioned(
+                      right: -4,
+                      top: -4,
+                      child: CrownBadge(size: 40),
+                    ),
+                ],
               ),
-            ),
-            // Pictogramme du module, en bas a gauche.
-            Positioned(
-              left: -4,
-              bottom: -4,
-              child: _IconTile(icon: p.icon, color: p.guide.color),
-            ),
-            if (locked)
-              const Positioned(
-                right: -4,
-                top: -4,
-                child: PadlockBadge(size: 44),
-              )
-            else if (!widget.premiumOwned)
-              const Positioned(right: -4, top: -4, child: CrownBadge(size: 40)),
-          ],
-        ),
       ),
     );
+    // Zone de tap circulaire (130/140 de la boite pour les lieux illustres,
+    // disque entier en repli), resserree par la carte pour garder 8 dp
+    // entre voisins (BUG-010).
+    return CircleHitArea(ratio: widget.tapRatio, child: button);
   }
+
+  /// Lieu illustre (assets de travail de Margaux), sans pictogramme (les
+  /// icones de modules ne servent que dans les modules et le HUD) : le
+  /// cadenas est deja dessine sur la version verrouillee ; l'anneau soleil "vient d'etre
+  /// debloque" et la medaille du pass restent dessines par l'appli.
+  Widget _artPlace(IslandPlace p, bool locked) => Stack(
+    clipBehavior: Clip.none,
+    children: [
+      if (_justUnlocked)
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.sun, width: AppSizes.sunRing),
+            ),
+          ),
+        ),
+      Positioned.fill(
+        child: Image.asset(
+          DesignArt.place(p.artId, locked: locked),
+          key: locked ? Key('locked-${p.name}') : null,
+          fit: BoxFit.contain,
+          alignment: Alignment.bottomCenter,
+        ),
+      ),
+      if (!locked && !widget.premiumOwned)
+        const Positioned(right: -4, top: -4, child: CrownBadge(size: 40)),
+    ],
+  );
 }
 
 class _IconTile extends StatelessWidget {

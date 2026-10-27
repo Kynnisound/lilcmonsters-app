@@ -56,7 +56,7 @@ class _ForestScreenState extends ConsumerState<ForestScreen> {
     final audio = ref.read(audioServiceProvider);
     final next = game.open(bush);
     final m = next.monsterAt(bush);
-    audio.play(m?.note ?? SoundEffect.pop);
+    audio.play(m?.note ?? SoundEffect.uiTap);
     setState(() => _game = next);
     if (next.isComplete) {
       audio.play(SoundEffect.success);
@@ -83,7 +83,10 @@ class _ForestScreenState extends ConsumerState<ForestScreen> {
           ? BouncyButton(
               key: const Key('forest-replay'),
               semanticLabel: 'Rejouer',
-              onTap: () => setState(() => _game = _newGame(full)),
+              onTap: () {
+                ref.read(audioServiceProvider).play(SoundEffect.uiTap);
+                setState(() => _game = _newGame(full));
+              },
               child: const Icon(
                 Icons.refresh_rounded,
                 size: 56,

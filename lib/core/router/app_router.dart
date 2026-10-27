@@ -47,6 +47,12 @@ GoRoute _route(
   routes: routes,
 );
 
+/// Ecrans qui demandent la porte parentale.
+const protectedRoutes = [
+  (ParentalPurpose.parentsSpace, Routes.parents),
+  (ParentalPurpose.lighthouse, Routes.lighthouse),
+];
+
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     initialLocation: Routes.map,
@@ -56,10 +62,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Ilots a debloquer : retour a la carte tant qu'ils sont fermes.
       if (loc == Routes.puzzle && !progress.puzzleUnlocked) return Routes.map;
       if (loc == Routes.shadows && !progress.shadowsUnlocked) return Routes.map;
-      // Espace parents (achats) : session parentale obligatoire.
-      if (loc.startsWith(Routes.parents) &&
-          !ref.read(parentalSessionProvider.notifier).isValid) {
-        return Routes.map;
+      // Ecrans proteges (BUG-002, BUG-013) : laissez-passer de la porte a
+      // usage unique, ou ecran deja ouvert. Toute navigation, y compris
+      // Precedent / Suivant du navigateur, repasse par ici : quitter un
+      // ecran protege le referme aussitot, sans attendre la fin de la
+      // transition, et y revenir par l'historique renvoie a la carte.
+      final access = ref.read(parentalAccessProvider);
+      for (final (purpose, route) in protectedRoutes) {
+        final here = loc == route || loc.startsWith('$route/');
+        if (!here) {
+          access.close(purpose);
+        } else if (!access.mayShow(purpose)) {
+          return Routes.map;
+        }
       }
       return null;
     },

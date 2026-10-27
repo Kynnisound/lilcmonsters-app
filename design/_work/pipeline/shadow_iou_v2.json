@@ -1,0 +1,88 @@
+{
+ "pairs": {
+  "fuzzle-pip": {
+   "iou_512": 0.378,
+   "iou_200": 0.378
+  },
+  "fuzzle-dottie": {
+   "iou_512": 0.413,
+   "iou_200": 0.412
+  },
+  "fuzzle-zib": {
+   "iou_512": 0.405,
+   "iou_200": 0.404
+  },
+  "fuzzle-bitsy": {
+   "iou_512": 0.159,
+   "iou_200": 0.156
+  },
+  "pip-dottie": {
+   "iou_512": 0.492,
+   "iou_200": 0.489
+  },
+  "pip-zib": {
+   "iou_512": 0.427,
+   "iou_200": 0.425
+  },
+  "pip-bitsy": {
+   "iou_512": 0.336,
+   "iou_200": 0.335
+  },
+  "dottie-zib": {
+   "iou_512": 0.288,
+   "iou_200": 0.286
+  },
+  "dottie-bitsy": {
+   "iou_512": 0.226,
+   "iou_200": 0.224
+  },
+  "zib-bitsy": {
+   "iou_512": 0.266,
+   "iou_200": 0.262
+  }
+ },
+ "shadow_vs_own_colour": {
+  "fuzzle": 1.0,
+  "pip": 0.962,
+  "dottie": 0.945,
+  "zib": 0.997,
+  "bitsy": 1.0
+ },
+ "shadow_vs_colour": {
+  "fuzzle": {
+   "fuzzle": 1.0,
+   "pip": 0.413,
+   "dottie": 0.45,
+   "zib": 0.405,
+   "bitsy": 0.159
+  },
+  "pip": {
+   "fuzzle": 0.378,
+   "pip": 0.962,
+   "dottie": 0.52,
+   "zib": 0.427,
+   "bitsy": 0.336
+  },
+  "dottie": {
+   "fuzzle": 0.413,
+   "pip": 0.51,
+   "dottie": 0.945,
+   "zib": 0.289,
+   "bitsy": 0.226
+  },
+  "zib": {
+   "fuzzle": 0.405,
+   "pip": 0.442,
+   "dottie": 0.293,
+   "zib": 0.997,
+   "bitsy": 0.266
+  },
+  "bitsy": {
+   "fuzzle": 0.158,
+   "pip": 0.337,
+   "dottie": 0.226,
+   "zib": 0.267,
+   "bitsy": 1.0
+  }
+ }
+}

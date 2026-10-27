@@ -1,0 +1,139 @@
+{
+  "ios": {
+    "file": "ios/app_icon_1024.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "mode": "RGB",
+    "ok_size_mode": true,
+    "has_alpha": false,
+    "motif_bbox": [
+      176,
+      142,
+      848,
+      899
+    ],
+    "motif_max_dist_px": 429.7,
+    "central80_box": [
+      102,
+      102,
+      922,
+      922
+    ]
+  },
+  "play_store": {
+    "file": "android/play_store/play_store_512.png",
+    "size": [
+      512,
+      512
+    ],
+    "mode": "RGB",
+    "ok_size_mode": true
+  },
+  "bg": {
+    "file": "android/ic_launcher_background.png",
+    "size": [
+      432,
+      432
+    ],
+    "mode": "RGB",
+    "ok_size_mode": true
+  },
+  "fg": {
+    "file": "android/ic_launcher_foreground.png",
+    "size": [
+      432,
+      432
+    ],
+    "mode": "RGBA",
+    "ok_size_mode": true,
+    "max_dist_px": 128.23,
+    "limit_px": 132,
+    "inside": true,
+    "corner_alpha": 0,
+    "transparent_share": 0.809
+  },
+  "mono": {
+    "file": "android/ic_launcher_monochrome.png",
+    "size": [
+      432,
+      432
+    ],
+    "mode": "RGBA",
+    "ok_size_mode": true,
+    "max_dist_px": 128.23,
+    "limit_px": 132,
+    "inside": true,
+    "corner_alpha": 0,
+    "transparent_share": 0.83,
+    "all_white": true
+  },
+  "splash1x": {
+    "file": "splash/splash_logo.png",
+    "size": [
+      288,
+      288
+    ],
+    "mode": "RGBA",
+    "ok_size_mode": true,
+    "max_dist_px": 96.28,
+    "circle240_limit_px": 120.0,
+    "inside240": true,
+    "dp_radius": 96.28,
+    "inside192": true
+  },
+  "splash2x": {
+    "file": "splash/2.0x/splash_logo.png",
+    "size": [
+      576,
+      576
+    ],
+    "mode": "RGBA",
+    "ok_size_mode": true,
+    "max_dist_px": 192.13,
+    "circle240_limit_px": 240.0,
+    "inside240": true,
+    "dp_radius": 96.06,
+    "inside192": true
+  },
+  "splash3x": {
+    "file": "splash/3.0x/splash_logo.png",
+    "size": [
+      864,
+      864
+    ],
+    "mode": "RGBA",
+    "ok_size_mode": true,
+    "max_dist_px": 287.98,
+    "circle240_limit_px": 360.0,
+    "inside240": true,
+    "dp_radius": 95.99,
+    "inside192": true
+  },
+  "splash_a12": {
+    "file": "splash/android12/splash_android12_1152.png",
+    "size": [
+      1152,
+      1152
+    ],
+    "mode": "RGBA",
+    "ok_size_mode": true,
+    "max_dist_px": 383.81,
+    "circle240_limit_px": 480.0,
+    "inside240": true,
+    "dp_radius": 95.95,
+    "inside192": true
+  },
+  "contrast": {
+    "plum_on_lagoon": 6.65,
+    "plum_on_cream": 13.74,
+    "pip_blue_on_lagoon": 1.47,
+    "plum_on_splash_bg": 6.65
+  },
+  "motif_enclosing_circle_viewbox": [
+    -0.0,
+    -14.86,
+    102.99
+  ]
+}
